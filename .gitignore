@@ -1,0 +1,28 @@
+# Entorno virtual
+.venv/
+venv/
+env/
+
+# Base de datos local
+db.sqlite3
+
+# Bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos estáticos recolectados (producción)
+staticfiles/
+
+# Variables de entorno
+.env
+.env.local
