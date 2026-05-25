@@ -29,7 +29,7 @@ turno-ya/
 │   └── wsgi.py
 ├── app/                   # App principal
 │   ├── models.py          # Modelos del dominio
-│   ├── views.py           # Vistas (FBV)
+│   ├── views.py           # Vistas basadas en clases (CBV)
 │   ├── urls.py            # URLs con app_name = "app"
 │   ├── admin.py           # Registro de modelos en el admin
 │   ├── apps.py
@@ -110,8 +110,9 @@ Los estudiantes deben agregar estos modelos en `app/models.py`:
 ## Vistas actuales implementadas
 
 ```python
-def home(request):        # GET /  → clinica/home.html — contexto vacío (TODO: agregar estadísticas)
-def lista_medicos(request): # GET /medicos/ → clinica/lista_medicos.html — contexto: {"medicos": queryset ordenado}
+class HomeView(TemplateView)            # GET /  → clinica/home.html
+class ListaMedicosView(ListView)        # GET /medicos/ → clinica/lista_medicos.html
+class RegistroUsuarioView(CreateView)   # GET+POST /accounts/registro/
 ```
 
 ## Vistas pendientes (TODO)
@@ -128,10 +129,10 @@ def lista_pacientes(request)           # GET /pacientes/
 
 ## Autenticación
 
-- `django.contrib.auth.urls` sigue incluido en `turnoya/urls.py`, pero la UI actual no expone login, logout ni registro.
-- No hay vista de registro implementada en la app.
-- Las vistas actuales (`home`, `lista_medicos`) no usan `@login_required`.
-- `settings.py` todavía conserva `LOGIN_URL`, `LOGIN_REDIRECT_URL` y `LOGOUT_REDIRECT_URL` como configuración heredada.
+- `django.contrib.auth.urls` está incluido en `turnoya/urls.py`.
+- La base común ya expone login, logout y una vista inicial de registro.
+- Las vistas privadas todavía deben protegerse en etapas siguientes con mixins de autenticación.
+- `settings.py` ya define `LOGIN_URL`, `LOGIN_REDIRECT_URL` y `LOGOUT_REDIRECT_URL`.
 
 ---
 
@@ -185,7 +186,7 @@ def turnos_por_medico_ordenados(medico_id: int) -> QuerySet: ...
 
 ## Convenciones del proyecto
 
-- Vistas: FBV (Function-Based Views), no CBV
+- Vistas: solo CBV (Class-Based Views)
 - URLs: siempre con `app_name` y `name`, referenciar con `{% url 'app:nombre' %}`
 - Templates: siempre extienden `base.html`
 - Modelos: siempre incluir `__str__`, `validate`, `new`, `update`
