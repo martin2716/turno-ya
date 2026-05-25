@@ -15,10 +15,27 @@
       </button>
       <div class="collapse navbar-collapse" id="navMenu">
         <ul class="navbar-nav ms-auto">
+          {% if user.is_authenticated %}
           <li class="nav-item">
             <a class="nav-link" href="{% url 'app:lista_medicos' %}">Médicos</a>
           </li>
-          <!-- TODO: agregar links a turnos y pacientes -->
+          <li class="nav-item">
+            <span class="nav-link disabled">Hola, {{ user.username }}</span>
+          </li>
+          <li class="nav-item">
+            <form method="post" action="{% url 'logout' %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-link nav-link">Salir</button>
+            </form>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}">Ingresar</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'app:registro' %}">Registrarse</a>
+          </li>
+          {% endif %}
         </ul>
       </div>
     </div>
