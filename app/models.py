@@ -96,7 +96,7 @@ class ObraSocial(models.Model):
     def __str__(self):
         return self.nombre
     
-    # TODO Implementar (maxi):
+    # TODO Implementar:
     #def validate() 
     #def new()
     #def update() 
@@ -113,15 +113,109 @@ class Paciente(models.Model):
     def __str__(self):
         return f"{self.apellido}, {self.nombre}"
     
-    # TODO Implementar (maxi):
-    #def validate()
-    #def new() 
-    #def update() 
+    @classmethod
+    def validate(cls, nombre, apellido, dni, email, telefono, instance=None):
 
+        """
+        Guardián de datos: verifica que todo esté en orden antes de guardar.
+        Si instance no es None, es porque estamos editando (update).
+        """
+        errors = []
+
+        # 1. Validación de campos obligatorios
+        if not nombre or not nombre.strip():
+            errors.append("El nombre es obligatorio.")
+        if not apellido or not apellido.strip():
+            errors.append("El apellido es obligatorio.")
+        if not dni or not dni.strip():
+            errors.append("El DNI es obligatorio.")
+
+        # 2. Validación de unicidad (DNI)
+        # Si instance existe (es un update), excluimos al mismo paciente 
+        # de la búsqueda para que no se autodetecte como duplicado.
+        query = cls.objects.filter(dni=dni)
+        if instance:
+            query = query.exclude(pk=instance.pk)
+
+        if query.exists():
+            errors.append("Ya existe un paciente registrado con ese DNI.")
+
+        # 3 validacion de formato simple para Email
+        if email and "@" not in email:
+            errors.append("El email ingresado no es válido.")
+
+        return errors
+
+        
+    @classmethod
+    def new(cls, usuario, nombre, apellido, email, telefono, dni, obra_social):
+        """
+        Crea y persiste un nuevo paciente si los datos son válidos.
+        Retorna (instancia, errores).
+        """
+
+        # 1. Llamamos al validador que ya armamos
+        errors = cls.validate(nombre, apellido, dni, email, telefono)
+
+        # 2. Si hay errores, no creamos nada y devolvemos la lista
+        if errors:
+            return None, errors
+        
+        # 3. si todo esta bien, creamos el paciente
+        paciente = cls.objects.create(
+            usuario=usuario,
+            nombre=nombre.strip(),
+            apellido=apellido.strip(),
+            email=email.strip(),
+            telefono=telefono.strip(),
+            dni=dni.strip(),
+            obra_social=obra_social
+        )
+
+        # Devolvemos la instancia creada y una lista vacía de errores
+        return paciente, []
+        
+
+
+
+    
+    def update(self, nombre, apellido, email, telefono, dni, obra_social):
+        """
+        Actualiza los datos del paciente tras validar que no haya conflictos.
+        """
+
+        # Validamos usando instance=self para ignorarnos a nosotros mismos
+        errors = self.__class__.validate(nombre, apellido, dni, email, telefono, instance=self)
+
+        if errors:
+            return errors
+        
+        # si no hay errores, actualizamos los campos 
+
+        self.nombre = nombre.strip()
+        self.apellido = apellido.strip()
+        self.email = email.strip()
+        self.telefono = telefono.strip()
+        self.dni = dni.strip()
+        self.obra_social = obra_social
+
+        self.save() # Guardamos los cambios en la BD
+        return [] # Retornamos lista vacía indicando éxito
+    
+
+    def puede_solicitar_turno(self):
+        """
+        Retorna True si el paciente tiene los datos mínimos para solicitar un turno.
+        """
+        # Verificamos que tenga teléfono y una obra social asignada
+        if self.telefono and self.obra_social:
+            return True
+        return False
+    
 
     # TODO de intermedia/final:
     # Martin: class Especialidad(models.Model): ...  ← extraer especialidad a FK
-    # Maxi: class Paciente(models.Model): --> Propuesta del modelo implementada (maxi)
+    # Maxi: class Paciente(models.Model): --> Propuesta del modelo,validate,new y update implementados (maxi)
     # Misael: class Turno(models.Model): ...
     # Dario: class Ausencia(models.Model): ...
     # Compartido: class ObraSocial(models.Model): --> Propuesta del modelo implementada (maxi)
