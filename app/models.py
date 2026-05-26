@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Medico(models.Model):
@@ -85,9 +86,43 @@ class Medico(models.Model):
         self.save()
         return []
 
+class ObraSocial(models.Model):
+
+    medico = models.ForeignKey('Medico', on_delete=models.SET_NULL, null=True, related_name='obras_sociales')
+    nombre = models.CharField(max_length=100)
+    sitio_web = models.URLField(blank=True, null=True)
+    requiere_token = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.nombre
+    
+    # TODO Implementar (maxi):
+    #def validate() 
+    #def new()
+    #def update() 
+
+class Paciente(models.Model):
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=100)
+    apellido = models.CharField(max_length=100)
+    email = models.EmailField(max_length=50)
+    telefono = models.CharField(max_length=20)
+    dni = models.CharField(max_length=20, unique=True)
+    obra_social = models.ForeignKey(ObraSocial, on_delete=models.SET_NULL, null=True)
+    
+    def __str__(self):
+        return f"{self.apellido}, {self.nombre}"
+    
+    # TODO Implementar (maxi):
+    #def validate()
+    #def new() 
+    #def update() 
+
+
     # TODO de intermedia/final:
     # Martin: class Especialidad(models.Model): ...  ← extraer especialidad a FK
-    # Maxi: class Paciente(models.Model): ...
+    # Maxi: class Paciente(models.Model): --> Propuesta del modelo implementada (maxi)
     # Misael: class Turno(models.Model): ...
     # Dario: class Ausencia(models.Model): ...
-    # Compartido: class ObraSocial(models.Model): ...
+    # Compartido: class ObraSocial(models.Model): --> Propuesta del modelo implementada (maxi)
+
