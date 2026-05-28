@@ -72,3 +72,85 @@ class MedicoModelTest(TestCase):
         self.assertEqual(self.medico.nombre, "Laura")  # sin cambios
 
     # TODO: agregar tests para Paciente y Turno cuando los implementen
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    class TurnoModelTest(TestCase):
+        #Test de turnos:
+        
+        #Validate:Cubrir al menos caso valido, fecha invalida y conflicto basico
+        def testTurnoValido(self):
+            errors = Turno.validate(
+                medico=None,
+                paciente_nombre="",
+                paciente_apellido="",
+                fecha=None,
+                disponibilidad=None,
+                observaciones=""
+            )
+            print(errors)
+            self.assertEqual(errors, [])#asser si retorna error.equals([])
+            
+            
+        def  testFechaInvalida(self):
+            
+            
+            self.assertTrue(len(self.fecha) < 0) #Recorda que si error => falla=true
+            
+            
+        def testConflictoTurno(self):
+        # Validar conflicto de horario
+            if self.fecha and self.medico:
+                conflictos = Turno.objects.filter(medico=self.medico, fecha=self.fecha)
+            self.assertTrue(conflicos.exists())
+            
+    #new:Verificar creacion correcta y bloqueo por errores
+        
+            def testNewTurnoValido(self):
+                turno, errors = Turno.new(
+                medico=self.medico,
+                paciente_nombre="Misael",
+                paciente_apellido="Casagrande",
+                fecha="2024-12-01 10:00:00",
+                disponibilidad=True,
+                observaciones="Consulta"
+                )
+                self.assertIsNotNone(turno)
+                self.assertEqual(errors, [])
+
+        def testNewTurnoInvalido(self):
+            turno, errors = Turno.new(
+                medico=None,
+                paciente_nombre="",
+                paciente_apellido="",
+                fecha=None,
+                disponibilidad=None,
+                observaciones=""
+            )
+            self.assertIsNone(turno)
+            self.assertTrue(len(errors) > 0)
+                
+        
+        #metodos de negocio:Probar cancelar(), aceptar() u otra logica elegida
+        
