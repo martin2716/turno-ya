@@ -113,6 +113,15 @@ class Paciente(models.Model):
     def __str__(self):
         return f"{self.apellido}, {self.nombre}"
     
+    def puede_solicitar_turno(self):
+        """
+        Retorna True si el paciente tiene los datos mínimos para solicitar un turno.
+        """
+        # Verificamos que tenga teléfono y una obra social asignada
+        if self.telefono and self.obra_social:
+            return True
+        return False
+    
     @classmethod
     def validate(cls, nombre, apellido, dni, email, telefono, instance=None):
 
@@ -203,14 +212,7 @@ class Paciente(models.Model):
         return [] # Retornamos lista vacía indicando éxito
     
 
-    def puede_solicitar_turno(self):
-        """
-        Retorna True si el paciente tiene los datos mínimos para solicitar un turno.
-        """
-        # Verificamos que tenga teléfono y una obra social asignada
-        if self.telefono and self.obra_social:
-            return True
-        return False
+    
     
 
     # TODO de intermedia/final:
