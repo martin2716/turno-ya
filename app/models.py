@@ -3,6 +3,23 @@
 from __future__ import annotations
 from django.db import models
 
+class Ausencia(models.Model):
+    motivo = models.TextField()
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField()
+    medico = models.ForeignKey(
+        Medico,
+        on_delete=models.CASCADE,
+        related_name="ausencias"
+    )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=Q(fecha_fin__gte=F("fecha_inicio")),
+                name="fecha_fin_mayor_igual_inicio",
+            )
+        ]
 
 class Medico(models.Model):
     """Representa a un profesional médico disponible para turnos."""
@@ -10,7 +27,7 @@ class Medico(models.Model):
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
     matricula = models.CharField(max_length=20, unique=True)
-    especialidad = models.CharField(max_length=100)
+
 
     class Meta:
         ordering = ["apellido", "nombre"]
