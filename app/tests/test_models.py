@@ -1,21 +1,71 @@
 """Pruebas unitarias del modelo Medico."""
 
 from django.test import TestCase
-from app.models import Medico
-from app.models import Paciente
-from app.models import ObraSocial
 from django.contrib.auth.models import User
+from app.models import Especialidad, Medico, ObraSocial
+
+
+class EspecialidadModelTest(TestCase):
+    """Verifica comportamiento basico y validaciones del modelo Especialidad."""
+
+    def setUp(self):
+        self.especialidad = Especialidad.objects.create(
+            nombre="Pediatría",
+            descripcion="Atención médica infantil",
+        )
+
+    def test_str_retorna_nombre(self):
+        self.assertEqual(str(self.especialidad), "Pediatría")
+
+    def test_validate_datos_correctos_retorna_lista_vacia(self):
+        errors = Especialidad.validate("Cardiología", "Especialidad del corazón")
+        self.assertEqual(errors, [])
+
+    def test_validate_nombre_vacio_retorna_error(self):
+        errors = Especialidad.validate("", "Especialidad sin nombre")
+        self.assertTrue(len(errors) > 0)
+
+    def test_new_crea_especialidad_con_datos_validos(self):
+        especialidad, errors = Especialidad.new("Clínica Médica", "Atención integral")
+        self.assertEqual(errors, [])
+        self.assertIsNotNone(especialidad)
+        self.assertEqual(especialidad.nombre, "Clínica Médica")
+        self.assertTrue(Especialidad.objects.filter(nombre="Clínica Médica").exists())
+
+    def test_new_con_datos_invalidos_retorna_errores_y_no_crea(self):
+        count_antes = Especialidad.objects.count()
+        especialidad, errors = Especialidad.new("", "")
+        self.assertIsNone(especialidad)
+        self.assertTrue(len(errors) > 0)
+        self.assertEqual(Especialidad.objects.count(), count_antes)
+
+    def test_update_modifica_datos_correctamente(self):
+        errors = self.especialidad.update("Neurología", "Sistema nervioso")
+        self.assertEqual(errors, [])
+        self.especialidad.refresh_from_db()
+        self.assertEqual(self.especialidad.nombre, "Neurología")
+        self.assertEqual(self.especialidad.descripcion, "Sistema nervioso")
+
+    def test_update_con_datos_invalidos_no_modifica(self):
+        errors = self.especialidad.update("", "")
+        self.assertTrue(len(errors) > 0)
+        self.especialidad.refresh_from_db()
+        self.assertEqual(self.especialidad.nombre, "Pediatría")
 
 
 class MedicoModelTest(TestCase):
     """Verifica comportamiento básico y validaciones del modelo."""
 
     def setUp(self):
+        self.especialidad = Especialidad.objects.create(
+            nombre="Pediatría",
+            descripcion="Atención médica infantil",
+        )
         self.medico = Medico.objects.create(
             nombre="Laura",
             apellido="Romero",
             matricula="MP-9999",
-            especialidad="Pediatría",
+            especialidad=self.especialidad,
         )
 
     # --- __str__ y métodos simples ---
@@ -33,21 +83,23 @@ class MedicoModelTest(TestCase):
     # --- validate ---
 
     def test_validate_datos_correctos_retorna_lista_vacia(self):
-        errors = Medico.validate("Ana", "García", "MP-0001", "Cardiología")
+        especialidad = Especialidad.objects.create(nombre="Cardiología")
+        errors = Medico.validate("Ana", "García", "MP-0001", especialidad)
         self.assertEqual(errors, [])
 
     def test_validate_nombre_vacio_retorna_error(self):
-        errors = Medico.validate("", "García", "MP-0001", "Cardiología")
+        errors = Medico.validate("", "García", "MP-0001", self.especialidad)
         self.assertTrue(len(errors) > 0)
 
     def test_validate_matricula_vacia_retorna_error(self):
-        errors = Medico.validate("Ana", "García", "", "Cardiología")
+        errors = Medico.validate("Ana", "García", "", self.especialidad)
         self.assertTrue(len(errors) > 0)
 
     # --- new ---
 
     def test_new_crea_medico_con_datos_validos(self):
-        medico, errors = Medico.new("Carlos", "López", "MP-1234", "Clínica Médica")
+        especialidad = Especialidad.objects.create(nombre="Clínica Médica")
+        medico, errors = Medico.new("Carlos", "López", "MP-1234", especialidad)
         self.assertEqual(errors, [])
         self.assertIsNotNone(medico)
         self.assertEqual(medico.apellido, "López")
@@ -63,10 +115,11 @@ class MedicoModelTest(TestCase):
     # --- update ---
 
     def test_update_modifica_datos_correctamente(self):
-        errors = self.medico.update("Laura", "Romero", "MP-9999", "Cardiología")
+        especialidad = Especialidad.objects.create(nombre="Cardiología")
+        errors = self.medico.update("Laura", "Romero", "MP-9999", especialidad)
         self.assertEqual(errors, [])
         self.medico.refresh_from_db()
-        self.assertEqual(self.medico.especialidad, "Cardiología")
+        self.assertEqual(self.medico.especialidad, especialidad)
 
     def test_update_con_datos_invalidos_no_modifica(self):
         errors = self.medico.update("", "", "", "")
