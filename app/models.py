@@ -135,6 +135,8 @@ class Medico(models.Model):
         self.save()
         return []
 
+   
+
 class Ausencia(models.Model):
     motivo = models.TextField()
     fecha_inicio = models.DateField()
@@ -152,6 +154,43 @@ class Ausencia(models.Model):
                 name="fecha_fin_mayor_igual_inicio",
             )
         ]
+    
+    @classmethod
+    def validate(cls, motivo, fecha_inicio, fecha_fin):
+        errors = []
+        if not motivo or not motivo.strip():
+            errors.append("El motivo es obligatorio.")
+        if not fecha_inicio:
+            errors.append("La fecha de inicio es obligatoria.")
+        if not fecha_fin:
+            errors.append("La fecha de fin es obligatoria.")
+        if fecha_inicio and fecha_fin and fecha_fin < fecha_inicio:
+            errors.append("La fecha de fin no puede ser anterior a la de inicio.")
+        return errors
+
+
+    @classmethod
+    def new(cls, motivo, fecha_inicio, fecha_fin, medico):
+        errors = cls.validate(motivo, fecha_inicio, fecha_fin)
+        if errors:
+            return None, errors
+        ausencia = cls.objects.create(
+            motivo=motivo.strip(),
+            fecha_inicio=fecha_inicio,
+            fecha_fin=fecha_fin,  
+            medico=medico
+        )
+        return ausencia, []
+
+    def update(self, motivo, fecha_inicio, fecha_fin):
+        errors = self.__class__.validate(motivo, fecha_inicio, fecha_fin)
+        if errors:
+            return errors
+        self.motivo = motivo.strip() 
+        self.fecha_inicio = fecha_inicio
+        self.fecha_fin = fecha_fin
+        self.save()
+        return []
 
 class ObraSocial(models.Model):
 
@@ -277,36 +316,6 @@ class Paciente(models.Model):
 
         self.save() # Guardamos los cambios en la BD
         return [] # Retornamos lista vacía indicando éxito
-    
-
-    
-    
-
-    # TODO de intermedia/final:
-    # Martin: class Especialidad(models.Model): ...  ← extraer especialidad a FK
-    # Maxi: class Paciente(models.Model): --> Propuesta del modelo,validate,new y update implementados (maxi)
-    # Misael: class Turno(models.Model): ...
-    # Dario: class Ausencia(models.Model): ...
-    # Compartido: class ObraSocial(models.Model): ...
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class Turno(models.Model):
@@ -392,3 +401,10 @@ class Turno(models.Model):
     def estadoDisponibilidad(self):#Esta vigente?
         """Retorna el estado del turno como 'Disponible' o 'Indisponible'."""
         return self.disponibilidad;
+
+# TODO de intermedia/final:
+    # Martin: class Especialidad(models.Model): ...  ← extraer especialidad a FK
+    # Maxi: class Paciente(models.Model): --> Propuesta del modelo,validate,new y update implementados (maxi)
+    # Misael: class Turno(models.Model): ...
+    # Dario: class Ausencia(models.Model): ...
+    # Compartido: class ObraSocial(models.Model): ...
