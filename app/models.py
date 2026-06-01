@@ -344,8 +344,6 @@ class Turno(models.Model):
             errors.append("El apellido del paciente es obligatorio.")
         if not fecha:
             errors.append("La fecha es obligatoria.")
-        if not disponibilidad:
-            errors.append("La disponibilidad es obligatoria.")
         if not observaciones:
             errors.append("Las observaciones son obligatorias.")
         return errors
