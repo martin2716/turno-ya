@@ -3,24 +3,8 @@
 from __future__ import annotations
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Q, F
 
-class Ausencia(models.Model):
-    motivo = models.TextField()
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField()
-    medico = models.ForeignKey(
-        Medico,
-        on_delete=models.CASCADE,
-        related_name="ausencias"
-    )
-
-    class Meta:
-        constraints = [
-            models.CheckConstraint(
-                check=Q(fecha_fin__gte=F("fecha_inicio")),
-                name="fecha_fin_mayor_igual_inicio",
-            )
-        ]
 
 class Especialidad(models.Model):
     """Representa la especialidad médica de un profesional."""
@@ -150,6 +134,24 @@ class Medico(models.Model):
         self.especialidad = especialidad
         self.save()
         return []
+
+class Ausencia(models.Model):
+    motivo = models.TextField()
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField()
+    medico = models.ForeignKey(
+        Medico,
+        on_delete=models.CASCADE,
+        related_name="ausencias"
+    )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=Q(fecha_fin__gte=F("fecha_inicio")),
+                name="fecha_fin_mayor_igual_inicio",
+            )
+        ]
 
 class ObraSocial(models.Model):
 
