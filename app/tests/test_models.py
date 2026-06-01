@@ -2,7 +2,7 @@
 
 from django.test import TestCase
 from django.contrib.auth.models import User
-from app.models import Especialidad, Medico, ObraSocial
+from app.models import Especialidad, Medico, ObraSocial, Paciente, Turno, Ausencia
 from django.utils import timezone
 from datetime import timedelta
 
@@ -131,146 +131,125 @@ class MedicoModelTest(TestCase):
         self.medico.refresh_from_db()
         self.assertEqual(self.medico.nombre, "Laura")  # sin cambios
 
-    # TODO: agregar tests para Paciente y Turno cuando los implementen
+    # TODO: agregar tests para Turno cuando los implementen
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    class TurnoModelTest(TestCase):
-        #Test de turnos:
+    # class TurnoModelTest(TestCase):
+    #     #Test de turnos:
 
         
 
-class MedicoModelTest(TestCase):
-    def setUp(self):
-        self.medico =Medico.objects.create(nombre="Laura",
-                                            apellido="Romero",
-                                            matricula="MP-9999",
-                                            especialidad="Pediatría")
+# class MedicoModelTest(TestCase):
+#     def setUp(self):
+#         self.medico =Medico.objects.create(nombre="Laura",
+#                                             apellido="Romero",
+#                                             matricula="MP-9999",
+#                                             especialidad="Pediatría")
         
-        #Validate:Cubrir al menos caso valido, fecha invalida y conflicto basico
-        def testTurnoValido(self):
-            errors = Turno.validate(
-            medico=self.medico,
-            paciente_nombre="Misael",
-            paciente_apellido="Casagrande",
-            fecha="2024-12-01 10:00:00",
-            disponibilidad=True,
-            observaciones="Consulta"
-            )
-            print(errors)
-            self.assertEqual(errors, [])#asser si retorna error.equals([])
+#         #Validate:Cubrir al menos caso valido, fecha invalida y conflicto basico
+#         def testTurnoValido(self):
+#             errors = Turno.validate(
+#             medico=self.medico,
+#             paciente_nombre="Misael",
+#             paciente_apellido="Casagrande",
+#             fecha="2024-12-01 10:00:00",
+#             disponibilidad=True,
+#             observaciones="Consulta"
+#             )
+#             print(errors)
+#             self.assertEqual(errors, [])#asser si retorna error.equals([])
             
             
-        def  testFechaInvalida(self):
-            errors = Turno.validate(
-                medico=self.medico,
-                paciente_nombre="Misael",
-                paciente_apellido="Casagrande",
-                fecha="2023-12-01 10:00:00",
-                disponibilidad=True,
-                observaciones="Consulta"
-            )
-            self.assertTrue(len(errors) > 0)
+#         def  testFechaInvalida(self):
+#             errors = Turno.validate(
+#                 medico=self.medico,
+#                 paciente_nombre="Misael",
+#                 paciente_apellido="Casagrande",
+#                 fecha="2023-12-01 10:00:00",
+#                 disponibilidad=True,
+#                 observaciones="Consulta"
+#             )
+#             self.assertTrue(len(errors) > 0)
             
-        def testConflictoTurno(self):
-            Turno.objects.create(
-            medico=self.medico,
-            paciente_nombre="Paciente Y",
-            paciente_apellido="Apellido Y",
-            fecha=self.fechaValida,
-            disponibilidad=True,
-            observaciones="Primer turno"
-            )
-            conflictos = Turno.objects.filter(medico=self.medico, fecha=self.fechaValida)
-            self.assertTrue(conflictos.exists())
+#         def testConflictoTurno(self):
+#             Turno.objects.create(
+#             medico=self.medico,
+#             paciente_nombre="Paciente Y",
+#             paciente_apellido="Apellido Y",
+#             fecha=self.fechaValida,
+#             disponibilidad=True,
+#             observaciones="Primer turno"
+#             )
+#             conflictos = Turno.objects.filter(medico=self.medico, fecha=self.fechaValida)
+#             self.assertTrue(conflictos.exists())
             
-        #new:Verificar creacion correcta y bloqueo por errores
+#         #new:Verificar creacion correcta y bloqueo por errores
         
-        def testNewTurnoValido(self):
-            turno, errors = Turno.new(
-            medico=self.medico,
-            paciente_nombre="Misael",
-            paciente_apellido="Casagrande",
-            fecha=self.fechaValida,
-            disponibilidad=True,
-            observaciones="Consulta"
-            )
-            self.assertIsNotNone(turno)
-            self.assertEqual(errors, [])
+#         def testNewTurnoValido(self):
+#             turno, errors = Turno.new(
+#             medico=self.medico,
+#             paciente_nombre="Misael",
+#             paciente_apellido="Casagrande",
+#             fecha=self.fechaValida,
+#             disponibilidad=True,
+#             observaciones="Consulta"
+#             )
+#             self.assertIsNotNone(turno)
+#             self.assertEqual(errors, [])
 
-        def testNewTurnoInvalido(self):
-            turno, errors = Turno.new(
-                medico=None,
-                paciente_nombre="",
-                paciente_apellido="",
-                fecha=None,
-                disponibilidad=None,
-                observaciones=""
-            )
-            self.assertIsNone(turno)
-            self.assertTrue(len(errors) > 0)
+#         def testNewTurnoInvalido(self):
+#             turno, errors = Turno.new(
+#                 medico=None,
+#                 paciente_nombre="",
+#                 paciente_apellido="",
+#                 fecha=None,
+#                 disponibilidad=None,
+#                 observaciones=""
+#             )
+#             self.assertIsNone(turno)
+#             self.assertTrue(len(errors) > 0)
                 
         
-    #metodos de negocio:Probar cancelar(), aceptar() u otra logica elegida
+#     #metodos de negocio:Probar cancelar(), aceptar() u otra logica elegida
         
-        def testCancelarTurno(self):
-            turno, _ = Turno.new(
-            medico=self.medico,
-            paciente_nombre="Misael",
-            paciente_apellido="Casagrande",
-            fecha=self.fechaValida,
-            disponibilidad=True,
-            observaciones="Consulta"
-            )
-            turno.cancelar()
-            self.assertEqual(turno.disponibilidad, False)
+#         def testCancelarTurno(self):
+#             turno, _ = Turno.new(
+#             medico=self.medico,
+#             paciente_nombre="Misael",
+#             paciente_apellido="Casagrande",
+#             fecha=self.fechaValida,
+#             disponibilidad=True,
+#             observaciones="Consulta"
+#             )
+#             turno.cancelar()
+#             self.assertEqual(turno.disponibilidad, False)
 
-        def testAceptarTurno(self):
-            turno, _ = Turno.new(
-                medico=self.medico,
-                paciente_nombre="Misael",
-                paciente_apellido="Casagrande",
-                fecha=self.fechaValida,
-                disponibilidad=False,
-                observaciones="Consulta"
-            )
-            turno.aceptar()
-            self.assertEqual(turno.disponibilidad, True)
+#         def testAceptarTurno(self):
+#             turno, _ = Turno.new(
+#                 medico=self.medico,
+#                 paciente_nombre="Misael",
+#                 paciente_apellido="Casagrande",
+#                 fecha=self.fechaValida,
+#                 disponibilidad=False,
+#                 observaciones="Consulta"
+#             )
+#             turno.aceptar()
+#             self.assertEqual(turno.disponibilidad, True)
 
-        def testEstadoDisponibilidad(self):
-            turno, _ = Turno.new(
-                medico=self.medico,
-                paciente_nombre="Misael",
-                paciente_apellido="Casagrande",
-                fecha=self.fechaValida,
-                disponibilidad=True,
-                observaciones="Consulta"
-            )
-            self.assertEqual(turno.estadoDisponibilidad(), True)
+#         def testEstadoDisponibilidad(self):
+#             turno, _ = Turno.new(
+#                 medico=self.medico,
+#                 paciente_nombre="Misael",
+#                 paciente_apellido="Casagrande",
+#                 fecha=self.fechaValida,
+#                 disponibilidad=True,
+#                 observaciones="Consulta"
+#             )
+#             self.assertEqual(turno.estadoDisponibilidad(), True)
             
-            turno.cancelar()
-            self.assertEqual(turno.estadoDisponibilidad(), False)
+#             turno.cancelar()
+#             self.assertEqual(turno.estadoDisponibilidad(), False)
+
 class PacienteModelTest(TestCase):
     """Verifica comportamiento básico y validaciones del modelo Paciente."""
 
@@ -438,5 +417,16 @@ class PacienteModelTest(TestCase):
         # 4. Verificación 
         self.assertTrue(len(errors) > 0)
 
+class AusenciaModelTest(TestCase):
 
-    # TODO: agregar tests para Paciente y Turno cuando los implementen
+      def setUp(self):
+          self.especialidad = Especialidad.objects.create(nombre="Pediatría")
+          self.medico = Medico.objects.create(
+              nombre="Laura", apellido="Romero",
+              matricula="MP-9999", especialidad=self.especialidad
+          ) 
+
+      def test_validate_fecha_fin_menor_a_inicio_retorna_error(self):
+          from datetime import date
+          errors = Ausencia.validate("Vacaciones", date(2025, 6, 10), date(2025, 6, 1), )
+          self.assertTrue(len(errors) > 0)
