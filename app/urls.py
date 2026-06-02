@@ -11,7 +11,7 @@ urlpatterns = [
     path("accounts/registro/", views.RegistroUsuarioView.as_view(), name="registro"),
     # TODO:
     # path("medicos/<int:pk>/", views.DetalleMedicoView.as_view(), name="detalle_medico"),
-    # path("turnos/", views.ListaTurnosView.as_view(), name="lista_turnos"),
+    path("turnos/", views.ListaTurnosView.as_view(), name="lista_turnos"),
     # path("turnos/nuevo/", views.NuevoTurnoView.as_view(), name="nuevo_turno"),
     # path("turnos/<int:pk>/cancelar/", views.CancelarTurnoView.as_view(), name="cancelar_turno"),
     # path("pacientes/", views.ListaPacientesView.as_view(), name="lista_pacientes"),

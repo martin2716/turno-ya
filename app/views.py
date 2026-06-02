@@ -5,7 +5,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.views.generic import ListView, TemplateView
-from .models import Especialidad, Medico
+from .models import Especialidad, Medico, Turno
 
 
 class HomeView(TemplateView):
@@ -28,6 +28,13 @@ class ListaMedicosView(ListView):
     model = Medico
     template_name = "clinica/lista_medicos.html"
     context_object_name = "medicos"
+
+class ListaTurnosView(ListView):
+    """Lista todos los turnos."""
+
+    model = Turno
+    template_name = "clinica/lista_turnos.html"
+    context_object_name = "turnos"
 
 
 class RegistroUsuarioView(CreateView):
