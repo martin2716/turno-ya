@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Pacientes — TurnoYa{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="h4">Pacientes</h2>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Apellido y nombre</th>
+        <th>DNI</th>
+        <th>Email</th>
+        <th>Teléfono</th>
+        <th>Obra Social</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for paciente in pacientes %}
+      <tr>
+        <td>{{ paciente.apellido }}, {{ paciente.nombre }}</td>
+        <td><code>{{ paciente.dni }}</code></td>
+        <td>{{ paciente.email }}</td>
+        <td>{{ paciente.telefono }}</td>
+        <td>{{ paciente.obra_social|default:"Sin asignar" }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" class="text-center text-muted">No hay pacientes cargados.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
