@@ -1,0 +1,18 @@
+[
+  {
+    "model": "auth.user", "pk": 2,
+    "fields": {"password": "!", "last_login": null, "is_superuser": false, "username": "juan.perez", "first_name": "Juan", "last_name": "Perez", "email": "juan.perez@example.com", "is_staff": false, "is_active": true, "date_joined": "2026-01-01T00:00:00Z", "groups": [], "user_permissions": []}
+  },
+  {
+    "model": "auth.user", "pk": 3,
+    "fields": {"password": "!", "last_login": null, "is_superuser": false, "username": "maria.gomez", "first_name": "María", "last_name": "Gomez", "email": "maria.gomez@example.com", "is_staff": false, "is_active": true, "date_joined": "2026-01-01T00:00:00Z", "groups": [], "user_permissions": []}
+  },
+  {
+    "model": "auth.user", "pk": 4,
+    "fields": {"password": "!", "last_login": null, "is_superuser": false, "username": "pedro.sanchez", "first_name": "Pedro", "last_name": "Sanchez", "email": "pedro.sanchez@example.com", "is_staff": false, "is_active": true, "date_joined": "2026-01-01T00:00:00Z", "groups": [], "user_permissions": []}
+  },
+  {
+    "model": "auth.user", "pk": 5,
+    "fields": {"password": "!", "last_login": null, "is_superuser": false, "username": "lucia.fernandez", "first_name": "Lucía", "last_name": "Fernandez", "email": "lucia.fernandez@example.com", "is_staff": false, "is_active": true, "date_joined": "2026-01-01T00:00:00Z", "groups": [], "user_permissions": []}
+  }
+]

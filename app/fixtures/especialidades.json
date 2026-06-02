@@ -1,0 +1,6 @@
+[
+  {"model": "app.especialidad", "pk": 1, "fields": {"nombre": "Clínica Médica", "descripcion": "Atención médica general del adulto"}},
+  {"model": "app.especialidad", "pk": 2, "fields": {"nombre": "Pediatría", "descripcion": "Atención médica infantil"}},
+  {"model": "app.especialidad", "pk": 3, "fields": {"nombre": "Cardiología", "descripcion": "Enfermedades del corazón y sistema cardiovascular"}},
+  {"model": "app.especialidad", "pk": 4, "fields": {"nombre": "Neurología", "descripcion": "Enfermedades del sistema nervioso"}}
+]
