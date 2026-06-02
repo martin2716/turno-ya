@@ -6,6 +6,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.views.generic import ListView, TemplateView
 from .models import Especialidad, Medico
+from .models import Paciente
 
 
 class HomeView(TemplateView):
@@ -36,6 +37,13 @@ class RegistroUsuarioView(CreateView):
     form_class = UserCreationForm
     template_name = "registration/signup.html"
     success_url = reverse_lazy("login")
+
+class ListaPacientesView(ListView):
+    """Lista todos los pacientes."""
+
+    model = Paciente
+    template_name = "clinica/lista_pacientes.html"
+    context_object_name = "pacientes"
 
 
 # Etapa intermedia y final: completar estas vistas unicamente como CBV.
