@@ -1,193 +1,107 @@
-# TurnoYa 🏥
+# TurnoYa
 
-Sistema web de gestión de turnos médicos desarrollado con Django 5.1+.  
-Permite registrar médicos, pacientes y turnos, con autenticación de usuarios y panel de administración.
+TurnoYa es una aplicacion web para la gestion de turnos medicos desarrollada con Django.
+El proyecto fue realizado como trabajo integrador de la materia Laboratorio de Programacion y Lenguajes.
 
----
+## Stack
 
-## 🛠️ Stack
+- Python 3.13+
+- Django 5.1+
+- SQLite
+- Bootstrap 5
+- `django.test.TestCase`
+- Git y GitHub
 
-| Tecnología | Versión |
-|------------|---------|
-| Python | 3.13+ |
-| Django | 5.1+ |
-| Base de datos | SQLite (desarrollo) |
-| Frontend | Bootstrap 5 |
-| Tests | `django.test.TestCase` |
-| Control de versiones | Git + GitHub |
+## Funcionalidades implementadas
 
----
+- registro de usuarios
+- login y logout con el sistema de autenticacion de Django
+- pantalla de inicio con estadisticas generales
+- listado de medicos
+- listado de turnos
+- listado de pacientes
+- panel de administracion de Django para modelos del proyecto
+- tests unitarios de modelos
 
-## ✨ Funcionalidades
+## Integrantes
 
-- 🔐 Registro, login y logout de usuarios
-- 👨‍⚕️ Gestión de médicos y especialidades
-- 🧑 Gestión de pacientes
-- 📅 Solicitud, confirmación y cancelación de turnos
-- 📊 Panel de inicio con estadísticas del día
-- 🛠️ Panel de administración Django configurado
-- 📱 Interfaz responsiva con Bootstrap 5
+- Dario Cabrera
+- Misael Casagrande
+- Maximiliano Rubidarte
+- Martin Acosta
 
----
+## Estructura general
 
-## 👥 Integrantes
-
-| Nombre | Usuario GitHub |
-|--------|---------------|
-| ... | [@usuario](https://github.com/usuario) |
-| ... | [@usuario](https://github.com/usuario) |
-| ... | [@usuario](https://github.com/usuario) |
-
----
-
-## 🚀 Instalación y uso
-
-### 1. Clonar el repositorio
-
-```bash
-git clone https://github.com/usuario/turnoya.git
-cd turnoya
+```text
+turno-ya/
+├── app/
+│   ├── admin.py
+│   ├── fixtures/
+│   ├── migrations/
+│   ├── models.py
+│   ├── templates/
+│   ├── tests/
+│   ├── urls.py
+│   └── views.py
+├── static/
+├── turnoya/
+│   ├── settings.py
+│   └── urls.py
+├── manage.py
+├── README.md
+├── SETUP.md
+└── requirements.txt
 ```
 
-### 2. Crear y activar el entorno virtual
+## Instalacion
+
+Para levantar el proyecto en desarrollo se pueden seguir los pasos de `SETUP.md`.
+
+Resumen rapido:
 
 ```bash
-# Windows
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-
-# macOS / Linux
+git clone https://github.com/martin2716/turno-ya
+cd turno-ya
 python3 -m venv .venv
 source .venv/bin/activate
-```
-
-### 3. Instalar dependencias
-
-```bash
 pip install -r requirements.txt
-```
-
-### 4. Aplicar migraciones
-
-```bash
 python manage.py migrate
-```
-
-### 5. Crear superusuario (para el panel admin)
-
-```bash
-python manage.py createsuperuser
-```
-
-### 6. Correr el servidor de desarrollo
-
-```bash
 python manage.py runserver
 ```
 
-Accedé a [http://localhost:8000](http://localhost:8000)  
-Panel admin: [http://localhost:8000/admin](http://localhost:8000/admin)
+## Tests
 
----
-
-## 🧪 Correr los tests
+Para correr los tests:
 
 ```bash
-# Todos los tests con detalle
 python manage.py test -v 2
+```
 
-# Solo tests de modelos
+Si se quiere correr solo el archivo actual de tests de modelos:
+
+```bash
 python manage.py test app.tests.test_models -v 2
-
-# Solo tests de vistas
-python manage.py test app.tests.test_views -v 2
 ```
 
----
+## Decisiones de diseño
 
-## 🔑 Credenciales de prueba
+Elegimos el dominio de turnos medicos porque permitia trabajar con varias relaciones entre modelos y cubrir varios de los temas pedidos en la materia, como autenticacion, vistas basadas en clases, validaciones y uso del admin.
 
-> ⚠️ Solo para uso del corrector en entorno de desarrollo local.
+En los modelos seguimos el patron `validate/new/update` pedido por la consigna para separar la validacion de la persistencia. De esta manera, cada modelo puede validar sus datos antes de crear o actualizar registros y los tests quedan mas claros.
 
-| Rol | Usuario | Contraseña |
-|-----|---------|-----------|
-| Superusuario / Admin | `admin` | `admin1234` |
-| Usuario de prueba | `usuario_prueba` | `prueba1234` |
+Tambien se decidio usar solo class based views para mantener consistencia con la consigna y aprovechar las vistas genericas de Django para listados, templates y registro. En la parte de autenticacion se reutilizo el sistema incorporado de Django para login y logout, mientras que el registro se resolvio con una `CreateView`.
 
----
+El trabajo se repartio por areas para que cada integrante pudiera avanzar sobre una parte concreta del proyecto, aunque despues se integraron los cambios en una unica base. Eso obligo a prestar atencion a migraciones, pruebas y consistencia entre modelos, vistas y templates.
 
-## 📁 Estructura del proyecto
+## Estado del proyecto
 
-```
-turnoya/
-├── turnoya/            # Configuración del proyecto Django
-│   ├── settings.py
-│   └── urls.py
-├── app/                # App principal
-│   ├── models.py       # Especialidad, Medico, Paciente, Turno
-│   ├── views.py
-│   ├── urls.py
-│   ├── forms.py
-│   ├── admin.py
-│   ├── consultas.py    # Consultas ORM
-│   └── tests/
-│       ├── test_models.py
-│       └── test_views.py
-├── templates/
-│   ├── base.html
-│   └── registration/
-├── static/
-├── manage.py
-├── requirements.txt
-└── .gitignore
-```
+El proyecto tiene una base funcional para el manejo de medicos, pacientes y turnos, y fue evolucionando por etapas a partir de la entrega intermedia. Como en todo trabajo practico grupal, algunas partes se fueron ajustando e integrando progresivamente.
 
----
+## Problemas comunes
 
-## 🖼️ Capturas
-
-### Inicio
-![Pantalla de inicio](docs/screenshots/inicio.png)
-
-### Lista de turnos
-![Lista de turnos](docs/screenshots/turnos.png)
-
-### Panel de administración
-![Admin](docs/screenshots/admin.png)
-
-### Login
-![Login](docs/screenshots/login.png)
-
----
-
-## 🧩 Decisiones de diseño
-
-> *(Mínimo 200 palabras — completar antes de la entrega final)*
-
-Describir aquí:
-- Por qué eligieron este dominio
-- Cómo organizaron las responsabilidades entre modelos y vistas
-- Qué validaciones decidieron poner en el modelo vs. en el formulario
-- Cómo dividieron el trabajo entre los integrantes
-- Cualquier decisión de diseño no obvia (ej: por qué usaron FBV en lugar de CBV, cómo manejaron la relación User ↔ Paciente, etc.)
-
----
-
-## ⭐ Funcionalidades opcionales implementadas
-
-- [ ] Vista "Mis turnos" para el paciente autenticado
-- [ ] Mensajes flash con `django.contrib.messages`
-- [ ] Paginación en lista de turnos
-- [ ] Permisos diferenciados por grupo
-- [ ] Tests de integración (flujo completo)
-
----
-
-## 🐛 Problemas comunes
-
-| Problema | Solución |
+| Problema | Solucion |
 |----------|----------|
-| `OperationalError: no such table` | Corré `python manage.py migrate` |
-| `No module named django` | Activá el entorno virtual |
-| Página en blanco o error 500 | Revisá la consola donde corre `runserver` |
-| Login no redirige bien | Verificá `LOGIN_REDIRECT_URL` en `settings.py` |
+| `OperationalError: no such table` | Correr `python manage.py migrate` |
+| `No module named django` | Activar el entorno virtual |
+| Error 500 o pagina en blanco | Revisar la consola donde corre `runserver` |
+| Problemas con login o redireccion | Revisar `LOGIN_URL`, `LOGIN_REDIRECT_URL` y `LOGOUT_REDIRECT_URL` en `settings.py` |
