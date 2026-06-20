@@ -163,12 +163,12 @@ class PacienteModelTest(TestCase):
 
     def test_validate_datos_correctos_retorna_lista_vacia(self):
         # Todos los campos OK
-        errors = Paciente.validate("Juan", "Perez", "12345678", "juan@test.com", "123456")
+        errors = Paciente.validate("Juan", "Perez", "12345678", "juan@test.com", "123456", self.obra_social)
         self.assertEqual(errors, [])
 
     def test_validate_campos_obligatorios_vacios_retorna_errores(self):
         # Probamos que el portero detecte si faltan nombre, apellido o DNI
-        errors = Paciente.validate("", "", "", "juan@test.com", "123456")
+        errors = Paciente.validate("", "", "", "juan@test.com", "123456", self.obra_social)
         self.assertIn("El nombre es obligatorio.", errors)
         self.assertIn("El apellido es obligatorio.", errors)
         self.assertIn("El DNI es obligatorio.", errors)
@@ -176,12 +176,12 @@ class PacienteModelTest(TestCase):
     def test_validate_dni_duplicado_retorna_error(self):
         # Para que este test funcione, tiene que existir un paciente con ese DNI
         # Usamos el DNI de el setup: "11111111"
-        errors = Paciente.validate("Otro", "Persona", "11111111", "otro@test.com", "999")
+        errors = Paciente.validate("Otro", "Persona", "11111111", "otro@test.com", "999", self.obra_social)
         self.assertIn("Ya existe un paciente registrado con ese DNI.", errors)
 
     def test_validate_email_invalido_retorna_error(self):
         # Probamos que detecte si falta el "@"
-        errors = Paciente.validate("Juan", "Perez", "99999999", "email-invalido", "123456")
+        errors = Paciente.validate("Juan", "Perez", "99999999", "email-invalido", "123456", self.obra_social)
         self.assertIn("El email ingresado no es válido.", errors)
 
     # --- new ---

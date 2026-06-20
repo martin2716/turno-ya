@@ -10,18 +10,19 @@ class Paciente(models.Model):
     email = models.EmailField(max_length=50)
     telefono = models.CharField(max_length=20)
     dni = models.CharField(max_length=20, unique=True)
-    obra_social = models.ForeignKey(ObraSocial, on_delete=models.SET_NULL, null=True)
+    obra_social = models.ForeignKey(ObraSocial, on_delete=models.PROTECT, null=False, blank=False)
 
     def __str__(self):
         return f"{self.apellido}, {self.nombre}"
 
     def puede_solicitar_turno(self):
-        if self.telefono and self.obra_social:
+        obra_social_id = getattr(self, 'obra_social_id', None)
+        if self.telefono and obra_social_id:
             return True
         return False
 
     @classmethod
-    def validate(cls, nombre, apellido, dni, email, telefono, instance=None):
+    def validate(cls, nombre, apellido, dni, email, telefono,obra_social, instance=None):
         errors = []
 
         if not nombre or not nombre.strip():
@@ -30,6 +31,12 @@ class Paciente(models.Model):
             errors.append("El apellido es obligatorio.")
         if not dni or not dni.strip():
             errors.append("El DNI es obligatorio.")
+        if not obra_social:
+            errors.append("La obra social es obligatoria.")
+        else:
+            from .obra_social import ObraSocial
+            if not ObraSocial.objects.filter(pk=obra_social.pk).exists():
+                errors.append("La obra social seleccionada no es válida.")
 
         query = cls.objects.filter(dni=dni)
         if instance:
@@ -45,7 +52,7 @@ class Paciente(models.Model):
 
     @classmethod
     def new(cls, usuario, nombre, apellido, email, telefono, dni, obra_social):
-        errors = cls.validate(nombre, apellido, dni, email, telefono)
+        errors = cls.validate(nombre, apellido, dni, email, telefono, obra_social)
         if errors:
             return None, errors
 
@@ -61,7 +68,7 @@ class Paciente(models.Model):
         return paciente, []
 
     def update(self, nombre, apellido, email, telefono, dni, obra_social):
-        errors = self.__class__.validate(nombre, apellido, dni, email, telefono, instance=self)
+        errors = self.__class__.validate(nombre, apellido, dni, email, telefono, obra_social, instance=self)
         if errors:
             return errors
 
@@ -73,3 +80,4 @@ class Paciente(models.Model):
         self.obra_social = obra_social
         self.save()
         return []
+    
