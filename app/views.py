@@ -6,6 +6,8 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.views.generic import ListView, TemplateView
 from .models import Especialidad, Medico, Turno, Paciente
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.shortcuts import redirect
 
 
 class HomeView(TemplateView):
@@ -29,12 +31,16 @@ class ListaMedicosView(ListView):
     template_name = "clinica/lista_medicos.html"
     context_object_name = "medicos"
 
-class ListaTurnosView(ListView):
+class ListaTurnosView(PermissionRequiredMixin, ListView):
     """Lista todos los turnos."""
 
     model = Turno
     template_name = "clinica/lista_turnos.html"
     context_object_name = "turnos"
+    permission_required = 'app.view_turno' # O el permiso que necesites
+
+    def handle_no_permission(self):
+        return redirect('home')
 
 
 class RegistroUsuarioView(CreateView):
@@ -44,12 +50,18 @@ class RegistroUsuarioView(CreateView):
     template_name = "registration/signup.html"
     success_url = reverse_lazy("login")
 
-class ListaPacientesView(ListView):
+class ListaPacientesView(PermissionRequiredMixin, ListView):
     """Lista todos los pacientes."""
 
     model = Paciente
     template_name = "clinica/lista_pacientes.html"
     context_object_name = "pacientes"
+
+    # agregamos el permiso requerido para acceder a esta vista
+    permission_required = 'app.view_paciente' # O el permiso que necesites
+    
+    def handle_no_permission(self):
+        return redirect('home')
 
 
 # Etapa intermedia y final: completar estas vistas unicamente como CBV.
