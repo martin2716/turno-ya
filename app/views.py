@@ -3,10 +3,10 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
-from django.views.generic import CreateView
+from django.views.generic import CreateView, UpdateView
 from django.views.generic import ListView, TemplateView
 from .models import Especialidad, Medico, Turno, Paciente
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import redirect
 
 
@@ -62,6 +62,20 @@ class ListaPacientesView(PermissionRequiredMixin, ListView):
     
     def handle_no_permission(self):
         return redirect('home')
+        
+
+class PerfilUpdateView(LoginRequiredMixin, UpdateView):
+    model = Paciente
+    # Permitimos editar solo lo que es lógico cambiar:
+    fields = ['nombre', 'apellido', 'telefono', 'obra_social'] 
+    template_name = 'clinica/perfil_form.html'
+    success_url = reverse_lazy('app:home') 
+
+    def get_object(self, queryset=None):
+        # Django busca el perfil del usuario que está logueado
+        return self.request.user.paciente
+    
+   
 
 
 # Etapa intermedia y final: completar estas vistas unicamente como CBV.

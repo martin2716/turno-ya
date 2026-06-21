@@ -32,8 +32,13 @@
           {% endif %}
 
           <li class="nav-item">
-            <span class="nav-link disabled">Hola, {{ user.username }}</span>
+            <a class="nav-link" href="{% url 'app:editar_perfil' %}">Mi Perfil</a>
           </li>
+
+          <li class="nav-item">
+            <span class="nav-link disabled text-white">Hola {{ user.username }} </span>
+          </li>
+
           <li class="nav-item">
             <form method="post" action="{% url 'logout' %}" class="d-inline">
               {% csrf_token %}

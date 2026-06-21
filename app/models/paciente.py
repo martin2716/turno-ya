@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 from .obra_social import ObraSocial
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 
 
 class Paciente(models.Model):
@@ -20,6 +23,24 @@ class Paciente(models.Model):
         if self.telefono and obra_social_id:
             return True
         return False
+    
+    # Este decorador dice: "Ejecutá esta función después de que se guarde un User"
+    @receiver(post_save, sender=User)
+    def crear_paciente_automaticamente(sender, instance, created, **kwargs):
+        if created:
+            # Buscamos una obra social por defecto (asegurate de tener una con ID 1 o cambiá el ID)
+            # O usá .first() para que tome la primera que encuentre
+            obra_defecto = ObraSocial.objects.first() 
+        
+            Paciente.objects.create(
+                usuario=instance,  # <--- Corregido: 'usuario' igual a tu modelo
+                nombre="Nombre Pendiente",
+                apellido="Apellido Pendiente",
+                email=instance.email, # Aprovechamos el mail del User
+                dni=f"SIN_DNI_{instance.id}", # Temporal para que sea único
+                telefono="0",
+                obra_social=obra_defecto # <--- Asignamos la primera que exista
+        )
 
     @classmethod
     def validate(cls, nombre, apellido, dni, email, telefono,obra_social, instance=None):

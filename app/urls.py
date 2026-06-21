@@ -15,4 +15,5 @@ urlpatterns = [
     path("turnos/", views.ListaTurnosView.as_view(), name="lista_turnos"),
     # path("turnos/nuevo/", views.NuevoTurnoView.as_view(), name="nuevo_turno"),
     # path("turnos/<int:pk>/cancelar/", views.CancelarTurnoView.as_view(), name="cancelar_turno"),
+    path("perfil/editar/", views.PerfilUpdateView.as_view(), name="editar_perfil"),
 ]
