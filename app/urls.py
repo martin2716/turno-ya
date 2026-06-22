@@ -9,6 +9,7 @@ urlpatterns = [
     path("", views.HomeView.as_view(), name="home"),
     path("medicos/", views.ListaMedicosView.as_view(), name="lista_medicos"),
     path("accounts/registro/", views.RegistroUsuarioView.as_view(), name="registro"),
+    path("perfil/", views.PerfilUsuarioView.as_view(), name="perfil_usuario"),
     path("pacientes/", views.ListaPacientesView.as_view(), name="lista_pacientes"),
     # TODO:
     # path("medicos/<int:pk>/", views.DetalleMedicoView.as_view(), name="detalle_medico"),
