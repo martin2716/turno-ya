@@ -1,0 +1,400 @@
+## ✅ **Perfecto. Aquí tenés un texto completo para tu archivo `.txt` explicando la estructura de Django, su funcionamiento, orden y posibles preguntas de examen.**
+
+Podes copiar y pegar todo esto directamente.
+
+---
+
+# 🧠 Guía de Estudio: Estructura y Funcionamiento de Django
+
+## 📁 Estructura de un Proyecto Django
+
+```
+mi_proyecto/                 # Carpeta raíz del proyecto
+│
+├── manage.py                # Punto de entrada (CLI): corre servidor, migraciones, tests
+├── db.sqlite3               # Base de datos por defecto (SQLite)
+├── requirements.txt         # Dependencias del proyecto
+│
+├── mi_proyecto/             # Configuración principal del proyecto
+│   ├── __init__.py          # Marca la carpeta como módulo Python
+│   ├── settings.py          # Configuración global (apps, BD, middleware, etc.)
+│   ├── urls.py              # Mapea URLs a vistas (el "enrutador")
+│   ├── wsgi.py              # Entrada para servidores web (producción)
+│   └── asgi.py              # Entrada para servidores async (WebSockets)
+│
+└── aplicaciones/            # Cada app es un módulo independiente
+    └── nombre_app/
+        ├── __init__.py
+        ├── admin.py         # Configuración del panel de administración
+        ├── apps.py          # Configuración de la app
+        ├── models.py        # Define la estructura de la base de datos (tablas)
+        ├── views.py         # Lógica de negocio: recibe request, devuelve response
+        ├── urls.py          # URLs específicas de la app (opcional)
+        ├── templates/       # HTML con sintaxis Django
+        │   └── nombre_app/
+        │       └── archivo.html
+        └── migrations/      # Historial de cambios en modelos (generado automáticamente)
+```
+
+---
+
+## 🔄 Flujo de una Request en Django (Orden de ejecución)
+
+```mermaid
+Usuario → URL → urls.py → View → Modelo → Template → Respuesta
+```
+
+### Paso a paso:
+
+| Paso | Componente | Qué hace |
+|------|-----------|----------|
+| 1 | **Cliente** | Usuario escribe `http://127.0.0.1:8000/turnos/` |
+| 2 | **URL dispatcher** | `urls.py` busca un patrón que coincida con `/turnos/` |
+| 3 | **View** | La vista asociada ejecuta la lógica (consulta BD, valida permisos, etc.) |
+| 4 | **Modelo** | Si es necesario, consulta o escribe en la BD usando ORM |
+| 5 | **Template** | La vista renderiza un HTML pasándole datos (contexto) |
+| 6 | **Response** | Django envía el HTML al navegador del usuario |
+
+---
+
+## 🧱 Componentes Fundamentales
+
+### 1. Modelo (`models.py`)
+- **Define la estructura de la base de datos** (tablas, campos, relaciones).
+- **ORM**: Mapea objetos Python a registros de BD.
+- **Métodos útiles**: `objects.create()`, `objects.filter()`, `objects.get()`, `save()`.
+
+```python
+class Turno(models.Model):
+    fecha = models.DateTimeField()
+    disponible = models.BooleanField(default=True)
+```
+
+### 2. Vista (`views.py`)
+- **Contiene la lógica de negocio**.
+- Recibe `request`, procesa y devuelve `response`.
+- Puede devolver HTML, JSON, redirecciones, errores, etc.
+
+```python
+def listar_turnos(request):
+    turnos = Turno.objects.filter(disponible=True)
+    return render(request, 'turnos/lista.html', {'turnos': turnos})
+```
+
+### 3. Template (`.html`)
+- **Define la presentación** (interfaz de usuario).
+- Usa sintaxis especial de Django:
+  - `{{ variable }}` → muestra contenido
+  - `{% tag %}` → lógica (if, for, url, extends, block, include)
+
+### 4. URL (`urls.py`)
+- **Enruta** cada URL a una vista específica.
+
+```python
+path('turnos/', listar_turnos, name='lista_turnos')
+```
+
+### 5. Admin (`admin.py`)
+- **Interfaz automática** para gestionar datos del modelo (CRUD).
+
+---
+
+## 📦 Patrón MVT (Model-View-Template)
+
+Django sigue el patrón **MVT**, una variante del clásico MVC:
+
+| Componente | Django | Explicación |
+|-----------|--------|-------------|
+| **Model** | `models.py` | Datos + lógica de BD |
+| **View** | `views.py` | Lógica de negocio (controlador en Django) |
+| **Template** | `templates/` | Interfaz de usuario (la "vista" visual) |
+
+📌 **Diferencia clave con MVC:** En Django, el "View" es lógica, no interfaz. El "Controller" no existe explícitamente porque Django lo maneja internamente.
+
+---
+
+## 🔧 Flujo de Migraciones
+
+```bash
+python manage.py makemigrations   # Crea archivos de migración (cambios pendientes)
+python manage.py migrate          # Aplica esos cambios a la BD real
+python manage.py showmigrations   # Muestra estado de migraciones (✅ aplicadas, ❌ pendientes)
+```
+
+### Orden de eventos al crear/modificar un modelo:
+
+1. Editar `models.py`
+2. `makemigrations` → genera archivo en `migrations/`
+3. `migrate` → ejecuta SQL en la BD
+4. La BD está actualizada
+
+---
+
+## ❓ Posibles Preguntas de Examen (con respuestas)
+
+### 1. ¿Cuál es la diferencia entre `makemigrations` y `migrate`?
+
+> **Respuesta:** `makemigrations` crea los archivos de migración basados en los cambios detectados en `models.py` (genera SQL en lenguaje Python). `migrate` ejecuta esas migraciones contra la base de datos real, creando/modificando tablas y columnas.
+
+### 2. ¿Qué es el ORM de Django y para qué sirve?
+
+> **Respuesta:** ORM (Object-Relational Mapping) permite interactuar con la base de datos usando objetos Python en lugar de escribir SQL crudo. Ejemplo: `Turno.objects.filter(disponible=True)` en lugar de `SELECT * FROM turno WHERE disponible = 1;`. Mejora seguridad, portabilidad y legibilidad.
+
+### 3. Explicá el flujo de una request desde que entra hasta que sale.
+
+> **Respuesta:**  
+> 1. Cliente envía request HTTP a una URL.  
+> 2. `urls.py` busca un patrón que coincida.  
+> 3. Se ejecuta la vista asociada.  
+> 4. La vista puede consultar/modificar la BD usando modelos.  
+> 5. La vista renderiza un template con datos (contexto).  
+> 6. Django devuelve response HTTP (generalmente HTML).
+
+### 4. ¿Qué es un `ForeignKey` y para qué sirve `on_delete`?
+
+> **Respuesta:** `ForeignKey` define una relación **N:1** entre modelos. El argumento `on_delete` define qué pasa cuando se elimina el objeto referenciado:
+> - `CASCADE` → se eliminan también los objetos relacionados.
+> - `PROTECT` → impide eliminar si existen referencias.
+> - `SET_NULL` → establece el campo en NULL (si permite `null=True`).
+
+### 5. ¿Cuál es la diferencia entre `null=True` y `blank=True`?
+
+> **Respuesta:** `null=True` permite que el campo sea **NULL** en la base de datos (ausencia de valor). `blank=True` permite que en formularios (Django forms/admin) el campo pueda estar vacío. Ambos se usan juntos para campos opcionales.
+
+### 6. ¿Qué función cumple `__str__` en un modelo?
+
+> **Respuesta:** Define la representación en **string** del objeto. Se usa en el panel de administración, en el shell, y al imprimir instancias. Ejemplo: `return f"{self.apellido}, {self.nombre}"`
+
+### 7. ¿Qué es el patrón MVT y cómo se diferencia de MVC?
+
+> **Respuesta:** MVT (Model-View-Template) es la variante que usa Django:
+> - **Model** = datos (igual que en MVC)
+> - **View** = lógica de negocio (similar al Controller en MVC)
+> - **Template** = interfaz de usuario (similar a la View en MVC)
+> 
+> Django no tiene un Controller explícito porque el framework maneja internamente el enrutamiento.
+
+### 8. ¿Qué archivos son obligatorios en un proyecto Django?
+
+> **Respuesta:** `manage.py`, `settings.py`, `urls.py`, y al menos una aplicación con `models.py` (aunque técnicamente el proyecto puede arrancar sin models, para un sistema real son necesarios).
+
+### 9. ¿Cómo se crea una nueva aplicación dentro de un proyecto?
+
+> **Respuesta:** `python manage.py startapp nombre_app`. Luego hay que agregar la app a `INSTALLED_APPS` en `settings.py`.
+
+### 10. ¿Qué es `related_name` en una ForeignKey y para qué sirve?
+
+> **Respuesta:** Define el nombre de la relación inversa desde el modelo relacionado. Ejemplo: si `Medico` tiene `ForeignKey('Especialidad', related_name='medicos')`, entonces desde `Especialidad` se puede hacer `especialidad.medicos.all()` para obtener todos los médicos de esa especialidad.
+
+---
+
+## 📌 Resumen Rápido para Repasar
+
+| Concepto | Definición corta |
+|----------|------------------|
+| **Django** | Framework web de alto nivel para Python |
+| **Proyecto** | Conjunto de configuraciones y apps |
+| **App** | Módulo con funcionalidad específica |
+| **Modelo** | Define tablas de la BD |
+| **Vista** | Lógica de negocio |
+| **Template** | HTML con sintaxis Django |
+| **URL** | Mapeo entre ruta y vista |
+| **ORM** | Mapeo objeto-relacional |
+| **Migración** | Historial de cambios en la BD |
+| **MVT** | Model-View-Template (patrón de Django) |
+
+---
+
+
+## ✅ **Aquí tenés otras 10 posibles preguntas de examen sobre Django (con respuestas).**
+
+---
+
+## ❓ Preguntas 11 a 20
+
+### 11. ¿Qué es `request` en una vista y qué información contiene?
+
+> **Respuesta:** `request` es un objeto que representa la petición HTTP que el cliente envía al servidor. Contiene información como:
+> - `request.method` → GET, POST, PUT, DELETE, etc.
+> - `request.GET` → parámetros de la URL (query string)
+> - `request.POST` → datos enviados por formulario
+> - `request.user` → usuario autenticado (si existe)
+> - `request.session` → datos de sesión
+> - `request.META` → cabeceras HTTP, IP del cliente, etc.
+
+---
+
+### 12. ¿Cuál es la diferencia entre `path()` y `re_path()` en `urls.py`?
+
+> **Respuesta:**
+> - `path()` → usa **ruteo simple con convertidores** de tipos: `str`, `int`, `slug`, `uuid`, `path`.
+>   ```python
+>   path('turnos/<int:id>/', detalle_turno)
+>   ```
+> - `re_path()` → usa **expresiones regulares** para patrones más complejos.
+>   ```python
+>   re_path(r'^turnos/(?P<id>[0-9]+)/$', detalle_turno)
+>   ```
+
+---
+
+### 13. ¿Qué es `name` en una URL y para qué sirve?
+
+> **Respuesta:** El parámetro `name` asigna un **nombre único** a una ruta. Permite referenciar la URL sin hardcodearla usando `{% url 'nombre' %}` en templates y `reverse('nombre')` en vistas. Esto facilita mantener el código si la ruta cambia.
+
+> ```python
+> # urls.py
+> path('turnos/lista/', listar_turnos, name='lista_turnos')
+> 
+> # template
+> <a href="{% url 'lista_turnos' %}">Ver turnos</a>
+> ```
+
+---
+
+### 14. Explicá los tres tipos de herencia de templates.
+
+> **Respuesta:**
+> 1. **`{% extends %}`** → Un template hijo hereda la estructura de un template base.
+> 2. **`{% block %}`** → Define secciones reemplazables en el template base.
+> 3. **`{% include %}`** → Inserta un template dentro de otro (reutilización de componentes).
+>
+> ```html
+> <!-- base.html -->
+> <html><body>{% block content %}{% endblock %}</body></html>
+> 
+> <!-- hijo.html -->
+> {% extends "base.html" %}
+> {% block content %}Mi contenido{% endblock %}
+> ```
+
+---
+
+### 15. ¿Qué son `static files` y cómo se manejan en Django?
+
+> **Respuesta:** Los archivos estáticos son CSS, JavaScript, imágenes, etc. Django los maneja con:
+> - `STATIC_URL` → URL base para servir estáticos (ej: `/static/`)
+> - `STATICFILES_DIRS` → carpetas adicionales donde buscar
+> - `STATIC_ROOT` → carpeta donde se recolectan para producción
+> - `{% load static %}` → carga el template tag
+> - `{% static 'ruta/archivo.css' %}` → genera la URL completa
+> - `python manage.py collectstatic` → copia todos los estáticos a `STATIC_ROOT` para producción
+
+---
+
+### 16. ¿Qué es `manage.py` y para qué sirve?
+
+> **Respuesta:** `manage.py` es un script de línea de comandos que sirve como **punto de entrada** para operar el proyecto Django. Comandos comunes:
+> - `runserver` → inicia servidor de desarrollo
+> - `makemigrations` → crea migraciones
+> - `migrate` → aplica migraciones
+> - `shell` → abre consola interactiva con Django cargado
+> - `createsuperuser` → crea usuario admin
+> - `test` → ejecuta tests
+
+---
+
+### 17. ¿Qué diferencia hay entre `get()` y `filter()`?
+
+> **Respuesta:**
+> | Método | Retorno | Si no encuentra | Si encuentra múltiples |
+> |--------|---------|-----------------|----------------------|
+> | `get()` | Un solo objeto | Lanza `DoesNotExist` | Lanza `MultipleObjectsReturned` |
+> | `filter()` | QuerySet (iterable) | QuerySet vacío | Todos los objetos que coinciden |
+>
+> ```python
+> turno = Turno.objects.get(id=1)        # único objeto o excepción
+> turnos = Turno.objects.filter(disponible=True)  # QuerySet (0, 1 o varios)
+> ```
+
+---
+
+### 18. ¿Qué son las `class-based views` (CBV) y cuándo usarlas?
+
+> **Respuesta:** Las CBV son vistas definidas como clases en lugar de funciones. Proveen métodos y atributos predefinidos para operaciones comunes.
+>
+> **Ventajas:**
+> - Reutilización de código (herencia)
+> - Menos código repetitivo (CRUD)
+> - Métodos como `get()`, `post()`, `dispatch()`
+>
+> **Ejemplos:** `ListView`, `DetailView`, `CreateView`, `UpdateView`, `DeleteView`, `FormView`, `TemplateView`
+>
+> ```python
+> from django.views.generic import ListView
+> 
+> class TurnoListView(ListView):
+>     model = Turno
+>     template_name = 'turnos/lista.html'
+>     context_object_name = 'turnos'
+> ```
+>
+> **Cuándo usarlas:** Para operaciones CRUD estándar. Usar **FBV** (Function Based Views) para lógica muy específica o atípica.
+
+---
+
+### 19. ¿Qué es el `Django Admin` y cómo se personaliza?
+
+> **Respuesta:** El admin es un panel de administración **automático** generado a partir de los modelos. Se accede en `/admin/`.
+>
+> **Para personalizarlo:**
+> ```python
+> # admin.py
+> from django.contrib import admin
+> from .models import Turno
+> 
+> @admin.register(Turno)
+> class TurnoAdmin(admin.ModelAdmin):
+>     list_display = ['fecha', 'medico', 'disponible']  # columnas visibles
+>     list_filter = ['disponible', 'medico']            # filtros laterales
+>     search_fields = ['paciente_nombre', 'paciente_apellido']  # búsqueda
+>     date_hierarchy = 'fecha'                          # navegación por fechas
+>     ordering = ['-fecha']                             # orden descendente
+>     readonly_fields = ['creado_en']                   # campos solo lectura
+> ```
+
+---
+
+### 20. ¿Qué son los `signals` en Django y para qué sirven?
+
+> **Respuesta:** Los signals permiten que ciertos **enviadores** notifiquen a un conjunto de **receptores** cuando ocurre una acción. Son útiles para ejecutar código automáticamente sin acoplar componentes.
+>
+> **Signals más comunes:**
+> - `pre_save` / `post_save` → antes/después de guardar un modelo
+> - `pre_delete` / `post_delete` → antes/después de eliminar
+> - `m2m_changed` → cuando cambia una relación ManyToMany
+> - `request_started` / `request_finished` → ciclo de request HTTP
+>
+> ```python
+> # signals.py
+> from django.db.models.signals import post_save
+> from django.dispatch import receiver
+> from .models import Turno
+> 
+> @receiver(post_save, sender=Turno)
+> def enviar_notificacion(sender, instance, created, **kwargs):
+>     if created:
+>         print(f"Nuevo turno creado: {instance}")
+> ```
+>
+> **⚠️ Precaución:** No abusar de signals (pueden hacer el flujo difícil de seguir). Usarlas solo cuando sea estrictamente necesario.
+
+---
+
+## 📊 Resumen Rápido (Preguntas 11-20)
+
+| Nº | Pregunta | Respuesta corta |
+|----|----------|-----------------|
+| 11 | ¿Qué es `request`? | Objeto con datos de la petición HTTP |
+| 12 | `path()` vs `re_path()` | Simple con convertidores vs regex |
+| 13 | ¿Qué es `name`? | Identificador único de una URL |
+| 14 | Herencia templates | `extends`, `block`, `include` |
+| 15 | Archivos estáticos | CSS/JS/imágenes con `{% static %}` |
+| 16 | `manage.py` | Script de control del proyecto |
+| 17 | `get()` vs `filter()` | Uno devuelve objeto, otro QuerySet |
+| 18 | CBV | Vistas como clases (reutilización) |
+| 19 | Django Admin | Panel automático + personalización |
+| 20 | Signals | Notificaciones automáticas entre componentes |
+
+---
+
