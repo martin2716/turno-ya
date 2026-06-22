@@ -118,19 +118,22 @@ class PacienteModelTest(TestCase):
     """Verifica comportamiento básico y validaciones del modelo Paciente."""
 
     def setUp(self):
-         # Para crear un paciente, necesitamos un usuario y una obra social
-         self.user = User.objects.create_user(username='maxi', password='1234')
-
-         self.obra_social = ObraSocial.objects.create(nombre = "IOMA")
-
-         self.paciente = Paciente.objects.create(
+        # 1. Necesitamos la obra social
+        self.obra_social = ObraSocial.objects.create(nombre="IOMA")
+    
+        # 2. Creamos el usuario
+        self.user = User.objects.create_user(username='maxi', password='1234')
+    
+        # 3. CREAMOS el paciente usando el método new
+        self.paciente, errors = Paciente.new(
             usuario=self.user,
             nombre="Juan",
             apellido="Perez",
             email="juan@perez.com",
             telefono="123456",
             dni="11111111",
-            obra_social=self.obra_social)
+            obra_social=self.obra_social
+    )
          
     # --- __str__ y métodos simples ---
 

@@ -66,15 +66,64 @@ class ListaPacientesView(PermissionRequiredMixin, ListView):
 
 class PerfilUpdateView(LoginRequiredMixin, UpdateView):
     model = Paciente
-    # Permitimos editar solo lo que es lógico cambiar:
+    # Campos que el usuario tiene permitido modificar después del alta
     fields = ['nombre', 'apellido', 'telefono', 'obra_social'] 
     template_name = 'clinica/perfil_form.html'
     success_url = reverse_lazy('app:home') 
 
+    def dispatch(self, request, *args, **kwargs):
+        """
+        El método dispatch es el primero en ejecutarse al llamar a la vista.
+        Aquí validamos el estado del usuario antes de procesar nada.
+        """
+        
+        # 1. Si el usuario NO tiene un paciente asociado Y no es staff,
+        # lo obligamos a pasar por el formulario de creación.
+        if not hasattr(request.user, 'paciente') and not request.user.is_staff:
+            return redirect('crear_perfil') 
+        
+        # 2. Si el usuario es staff (admin), no tiene sentido que edite un perfil de paciente.
+        # Lo redirigimos a home.
+        if request.user.is_staff:
+            return redirect('app:home') 
+            
+        # 3. Si pasó todas las validaciones (es un paciente con perfil creado),
+        # ejecutamos la lógica normal de la vista.
+        return super().dispatch(request, *args, **kwargs)
+
     def get_object(self, queryset=None):
-        # Django busca el perfil del usuario que está logueado
+        """
+        Este método busca el objeto que se va a editar.
+        Como ya validamos en dispatch que el paciente existe, 
+        aquí simplemente lo devolvemos de forma segura.
+        """
+        # Accedemos al paciente a través de la relación OneToOne con el usuario
         return self.request.user.paciente
+
+class PerfilCreateView(LoginRequiredMixin, CreateView):
+    model = Paciente
+    fields = ['nombre', 'apellido', 'email', 'telefono', 'dni', 'obra_social']
+    template_name = 'clinica/perfil_form.html'
+    success_url = reverse_lazy('app:home')
+
+    def form_valid(self, form):
     
+        paciente, errors = Paciente.new(
+            usuario=self.request.user,
+            nombre=form.cleaned_data['nombre'],
+            apellido=form.cleaned_data['apellido'],
+            email=form.cleaned_data['email'],
+            telefono=form.cleaned_data['telefono'],
+            dni=form.cleaned_data['dni'],
+            obra_social=form.cleaned_data['obra_social']
+        )
+        
+        if errors:
+            # Si hay errores de validación, volvemos a mostrar el form con errores
+            form.add_error(None, errors)
+            return self.form_invalid(form)
+            
+        return redirect(self.success_url)
    
 
 
