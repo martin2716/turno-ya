@@ -432,3 +432,10 @@ class Turno(models.Model):  # Define el modelo Turno para citas médicas.
     # Misael: class Turno(models.Model): ...
     # Dario: class Ausencia(models.Model): ...
     # Compartido: class ObraSocial(models.Model): ...
+
+
+
+
+
+
+#1
