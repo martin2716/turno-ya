@@ -1,6 +1,6 @@
 from django.db import models
-from .especialidad import Especialidad
-
+from .especialidad import Especialidad  
+from .obra_social import ObraSocial    
 
 class Medico(models.Model):
     """Representa a un profesional médico disponible para turnos."""
@@ -13,23 +13,33 @@ class Medico(models.Model):
         on_delete=models.PROTECT,
         related_name="medicos",
     )
+    # --- NUEVO CAMPO ---
+    obras_sociales = models.ManyToManyField(ObraSocial, related_name="medicos_que_la_aceptan", blank=True)
+    # -------------------
 
     class Meta:
         ordering = ["apellido", "nombre"]
 
     def __str__(self):
+        """Retorna una etiqueta legible para listados y admin."""
         return f"Dr/a. {self.apellido}, {self.nombre}"
 
     def nombre_completo(self):
+        """Retorna nombre y apellido concatenados."""
         return f"{self.nombre} {self.apellido}"
 
     def cantidad_turnos(self):
+        """Retorna la cantidad total de turnos asociados a este médico."""
         if not hasattr(self, "turno_set"):
             return 0
         return self.turno_set.count()
 
     @classmethod
     def validate(cls, nombre, apellido, matricula, especialidad):
+        """
+        Valida los datos del médico. Retorna una lista de errores.
+        Si la lista está vacía, los datos son válidos.
+        """
         errors = []
 
         if not nombre or not nombre.strip():
@@ -47,7 +57,11 @@ class Medico(models.Model):
         return errors
 
     @classmethod
-    def new(cls, nombre, apellido, matricula, especialidad):
+    def new(cls, nombre, apellido, matricula, especialidad,obras_sociales=None):# <--- Agregado opcional
+        """
+        Crea y persiste un nuevo médico si los datos son válidos.
+        Retorna (instancia, errors). Si hay errores, instancia es None.
+        """
         errors = cls.validate(nombre, apellido, matricula, especialidad)
         if errors:
             return None, errors
@@ -58,9 +72,17 @@ class Medico(models.Model):
             matricula=matricula.strip(),
             especialidad=especialidad,
         )
+        # --- NUEVA LÓGICA ---
+        if obras_sociales:
+            medico.obras_sociales.set(obras_sociales)
+        # --------------------
         return medico, []
 
-    def update(self, nombre, apellido, matricula, especialidad):
+    def update(self, nombre, apellido, matricula, especialidad, obras_sociales=None):# <--- Agregado opcional
+        """
+        Actualiza los datos del médico si los datos son válidos.
+        Retorna una lista de errores. Si está vacía, la actualización fue exitosa.
+        """
         errors = self.__class__.validate(nombre, apellido, matricula, especialidad)
         if errors:
             return errors
@@ -69,5 +91,9 @@ class Medico(models.Model):
         self.apellido = apellido.strip()
         self.matricula = matricula.strip()
         self.especialidad = especialidad
+        # --- NUEVA LÓGICA ---
+        if obras_sociales is not None:
+            self.obras_sociales.set(obras_sociales)
+        # --------------------
         self.save()
         return []

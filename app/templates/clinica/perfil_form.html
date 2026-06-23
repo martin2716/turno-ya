@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if object %}Editar Perfil{% else %}Completar Perfil{% endif %} | TurnoYa
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-success text-white">
+        <h4 class="mb-0">
+            {% if object %}Editar mi Información{% else %}Completar mis Datos{% endif %}
+        </h4>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label fw-bold">{{ field.label }}</label>
+              {{ field }} {% if field.help_text %}
+                <small class="text-muted">{{ field.help_text }}</small>
+              {% endif %}
+            </div>
+          {% endfor %}
+
+          <div class="d-grid gap-2 mt-4">
+            <button type="submit" class="btn btn-success">
+                {% if object %}Guardar Cambios{% else %}Finalizar Registro{% endif %}
+            </button>
+            <a href="{% url 'app:home' %}" class="btn btn-outline-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

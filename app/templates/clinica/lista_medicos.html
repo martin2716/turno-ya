@@ -7,6 +7,24 @@
   <h2 class="h4">Médicos</h2>
 </div>
 
+<form method="get" class="row g-3 mb-4 align-items-end">
+  <div class="col-12 col-md-4">
+    <label for="especialidad" class="form-label">Filtrar por especialidad</label>
+    <select name="especialidad" id="especialidad" class="form-select">
+      <option value="">Todas las especialidades</option>
+      {% for esp in especialidades %}
+        <option value="{{ esp.id }}" {% if request.GET.especialidad == esp.id|stringformat:"i" %}selected{% endif %}>
+          {{ esp.nombre }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-12 col-md-auto">
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <a href="{% url 'app:lista_medicos' %}" class="btn btn-outline-secondary">Limpiar</a>
+  </div>
+</form>
+
 <div class="table-responsive">
   <table class="table table-hover align-middle">
     <thead class="table-light">
@@ -14,7 +32,6 @@
         <th>Apellido y nombre</th>
         <th>Matrícula</th>
         <th>Especialidad</th>
-        <!-- TODO: agregar columna de acciones cuando implementen detalle_medico -->
       </tr>
     </thead>
     <tbody>
@@ -26,7 +43,7 @@
       </tr>
       {% empty %}
       <tr>
-        <td colspan="3" class="text-center text-muted">No hay médicos cargados.</td>
+        <td colspan="3" class="text-center text-muted">No se encontraron medicos.</td>
       </tr>
       {% endfor %}
     </tbody>

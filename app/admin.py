@@ -19,9 +19,9 @@ class MedicoAdmin(admin.ModelAdmin):
 
 @admin.register(ObraSocial)
 class ObraSocialAdmin(admin.ModelAdmin):
-    list_display = ("nombre", "medico", "requiere_token")
+    list_display = ("nombre", "requiere_token", "medicos_disponibles")
     list_filter = ("requiere_token",)
-    search_fields = ("nombre",)
+    search_fields = ("nombre", "sitio_web")
 
 
 @admin.register(Paciente)

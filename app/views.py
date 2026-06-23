@@ -1,10 +1,16 @@
 """Vistas principales de la aplicación TurnoYa."""
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, FormView, ListView, TemplateView
+from django.views.generic import (
+    CreateView,
+    FormView,
+    ListView,
+    TemplateView,
+    UpdateView,
+)
 
 from .forms import PerfilUsuarioForm, RegistroUsuarioForm
 from .models import Especialidad, Medico, Paciente, Turno
@@ -14,8 +20,10 @@ class PerfilPacienteRequiredMixin(LoginRequiredMixin):
     """Redirige al usuario para completar su perfil antes de usar la app."""
 
     def dispatch(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            return super().dispatch(request, *args, **kwargs)
         if not Paciente.objects.filter(usuario=request.user).exists():
-            return redirect("app:perfil_usuario")
+            return redirect("app:crear_perfil")
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -34,19 +42,37 @@ class HomeView(PerfilPacienteRequiredMixin, TemplateView):
 
 
 class ListaMedicosView(PerfilPacienteRequiredMixin, ListView):
-    """Lista todos los médicos."""
+    """Lista todos los médicos, con filtro opcional por especialidad."""
 
     model = Medico
     template_name = "clinica/lista_medicos.html"
     context_object_name = "medicos"
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        especialidad_id = self.request.GET.get("especialidad")
 
-class ListaTurnosView(PerfilPacienteRequiredMixin, ListView):
+        if especialidad_id:
+            queryset = queryset.filter(especialidad_id=especialidad_id)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["especialidades"] = Especialidad.objects.all()
+        return context
+
+
+class ListaTurnosView(PermissionRequiredMixin, ListView):
     """Lista todos los turnos."""
 
     model = Turno
     template_name = "clinica/lista_turnos.html"
     context_object_name = "turnos"
+    permission_required = "app.view_turno"
+
+    def handle_no_permission(self):
+        return redirect("app:home")
 
 
 class RegistroUsuarioView(CreateView):
@@ -57,16 +83,63 @@ class RegistroUsuarioView(CreateView):
     success_url = reverse_lazy("login")
 
 
-class ListaPacientesView(PerfilPacienteRequiredMixin, ListView):
+class ListaPacientesView(PermissionRequiredMixin, ListView):
     """Lista todos los pacientes."""
 
     model = Paciente
     template_name = "clinica/lista_pacientes.html"
     context_object_name = "pacientes"
+    permission_required = "app.view_paciente"
+
+    def handle_no_permission(self):
+        return redirect("app:home")
+
+
+class PerfilUpdateView(LoginRequiredMixin, UpdateView):
+    model = Paciente
+    fields = ["nombre", "apellido", "telefono", "obra_social"]
+    template_name = "clinica/perfil_form.html"
+    success_url = reverse_lazy("app:home")
+
+    def dispatch(self, request, *args, **kwargs):
+        if not hasattr(request.user, "paciente") and not request.user.is_staff:
+            return redirect("app:crear_perfil")
+
+        if request.user.is_staff:
+            return redirect("app:home")
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        return self.request.user.paciente
+
+
+class PerfilCreateView(LoginRequiredMixin, CreateView):
+    model = Paciente
+    fields = ["nombre", "apellido", "email", "telefono", "dni", "obra_social"]
+    template_name = "clinica/perfil_form.html"
+    success_url = reverse_lazy("app:home")
+
+    def form_valid(self, form):
+        paciente, errors = Paciente.new(
+            usuario=self.request.user,
+            nombre=form.cleaned_data["nombre"],
+            apellido=form.cleaned_data["apellido"],
+            email=form.cleaned_data["email"],
+            telefono=form.cleaned_data["telefono"],
+            dni=form.cleaned_data["dni"],
+            obra_social=form.cleaned_data["obra_social"],
+        )
+
+        if errors:
+            form.add_error(None, errors)
+            return self.form_invalid(form)
+
+        return redirect(self.success_url)
 
 
 class PerfilUsuarioView(LoginRequiredMixin, FormView):
-    """Alta y edición obligatoria del perfil de paciente."""
+    """Alta y edición resumida del perfil de paciente."""
 
     form_class = PerfilUsuarioForm
     template_name = "clinica/perfil_usuario.html"
@@ -117,15 +190,7 @@ class PerfilUsuarioView(LoginRequiredMixin, FormView):
         return super().form_valid(form)
 
 
-# Etapa intermedia y final: completar estas vistas unicamente como CBV.
-# Martin: HomeView y coordinación técnica.
-# Maxi: filtro/listado de médicos y parte de auth.
-# Misael: turnos.
-# Dario: detalle de médico, templates y UX.
-#
 # TODO: implementar las siguientes vistas:
 # class DetalleMedicoView(...): ...
-# class ListaTurnosView(...): ...
 # class NuevoTurnoView(...): ...
 # class CancelarTurnoView(...): ...
-# class ListaPacientesView(...): ...
