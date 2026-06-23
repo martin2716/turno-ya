@@ -31,6 +31,23 @@ class ListaMedicosView(ListView):
     template_name = "clinica/lista_medicos.html"
     context_object_name = "medicos"
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # Buscamos el parámetro 'especialidad' en el GET de la URL
+        especialidad_id = self.request.GET.get('especialidad')
+        
+        if especialidad_id:
+            # Filtramos si el usuario seleccionó una especialidad
+            queryset = queryset.filter(especialidad_id=especialidad_id)
+            
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Esto llena la variable 'especialidades' que usas en el for del HTML
+        context['especialidades'] = Especialidad.objects.all()
+        return context
+
 class ListaTurnosView(PermissionRequiredMixin, ListView):
     """Lista todos los turnos."""
 

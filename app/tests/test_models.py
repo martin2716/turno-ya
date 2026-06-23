@@ -425,3 +425,13 @@ class ObraSocialModelTest(TestCase):
         especialidad = Especialidad.objects.create(nombre="Pediatría")
         medico, _ = Medico.new("Juan", "Perez", "MP-111", especialidad, obras_sociales=[self.obra_social])
         self.assertEqual(self.obra_social.medicos_disponibles, 1)
+
+    def test_update_nombre_valido(self):
+        
+        # Actualizamos
+        errors = self.obra_social.update(nombre="SWISS MEDICAL")
+        # Verificamos
+        self.assertEqual(errors, [])
+        self.assertEqual(self.obra_social.nombre, "SWISS MEDICAL")
+        # Confirmamos que se guardó en BD
+        self.assertTrue(ObraSocial.objects.filter(nombre="SWISS MEDICAL").exists())
