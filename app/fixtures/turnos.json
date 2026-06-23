@@ -2,5 +2,7 @@
   {"model": "app.turno", "pk": 1, "fields": {"medico": 1, "paciente_nombre": "Juan", "paciente_apellido": "Pérez", "fecha": "2026-06-10T09:00:00Z", "observaciones": "Consulta de rutina", "disponibilidad": true}},
   {"model": "app.turno", "pk": 2, "fields": {"medico": 2, "paciente_nombre": "María", "paciente_apellido": "Gómez", "fecha": "2026-06-11T10:30:00Z", "observaciones": "Control mensual", "disponibilidad": true}},
   {"model": "app.turno", "pk": 3, "fields": {"medico": 3, "paciente_nombre": "Pedro", "paciente_apellido": "Sánchez", "fecha": "2026-06-12T08:00:00Z", "observaciones": "Revisión post-operatoria", "disponibilidad": false}},
-  {"model": "app.turno", "pk": 4, "fields": {"medico": 1, "paciente_nombre": "Lucía", "paciente_apellido": "Fernández", "fecha": "2026-06-15T11:00:00Z", "observaciones": "Primera consulta", "disponibilidad": true}}
+  {"model": "app.turno", "pk": 4, "fields": {"medico": 1, "paciente_nombre": "Lucía", "paciente_apellido": "Fernández", "fecha": "2026-06-15T11:00:00Z", "observaciones": "Primera consulta", "disponibilidad": true}},
+  {"model": "app.turno", "pk": 5, "fields": {"medico": 4, "paciente_nombre": "Martín", "paciente_apellido": "Díaz", "fecha": "2026-06-20T14:00:00Z", "observaciones": "Consulta por dolor", "disponibilidad": false}},
+  {"model": "app.turno", "pk": 6, "fields": {"medico": 5, "paciente_nombre": "Elena", "paciente_apellido": "Romero", "fecha": "2026-06-25T16:30:00Z", "observaciones": "Chequeo neurológico", "disponibilidad": true}}
 ]

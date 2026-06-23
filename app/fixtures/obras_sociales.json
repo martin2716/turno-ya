@@ -1,6 +1,8 @@
 [
-  {"model": "app.obrasocial", "pk": 1, "fields": {"medico": null, "nombre": "IOMA", "sitio_web": null, "requiere_token": false}},
-  {"model": "app.obrasocial", "pk": 2, "fields": {"medico": null, "nombre": "OSDE", "sitio_web": null, "requiere_token": true}},
-  {"model": "app.obrasocial", "pk": 3, "fields": {"medico": null, "nombre": "Swiss Medical", "sitio_web": null, "requiere_token": true}},
-  {"model": "app.obrasocial", "pk": 4, "fields": {"medico": null, "nombre": "PAMI", "sitio_web": null, "requiere_token": false}}
+  {"model": "app.obrasocial", "pk": 1, "fields": {"nombre": "IOMA", "sitio_web": null, "requiere_token": false}},
+  {"model": "app.obrasocial", "pk": 2, "fields": {"nombre": "OSDE", "sitio_web": null, "requiere_token": true}},
+  {"model": "app.obrasocial", "pk": 3, "fields": {"nombre": "Swiss Medical", "sitio_web": null, "requiere_token": true}},
+  {"model": "app.obrasocial", "pk": 4, "fields": {"nombre": "PAMI", "sitio_web": null, "requiere_token": false}},
+  {"model": "app.obrasocial", "pk": 5, "fields": {"nombre": "Galeno", "sitio_web": null, "requiere_token": true}},
+  {"model": "app.obrasocial", "pk": 6, "fields": {"nombre": "Medifé", "sitio_web": null, "requiere_token": true}}
 ]

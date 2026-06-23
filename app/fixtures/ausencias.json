@@ -2,5 +2,8 @@
   {"model": "app.ausencia", "pk": 1, "fields": {"motivo": "Vacaciones", "fecha_inicio": "2026-07-01", "fecha_fin": "2026-07-15", "medico": 1}},
   {"model": "app.ausencia", "pk": 2, "fields": {"motivo": "Congreso médico", "fecha_inicio": "2026-08-10", "fecha_fin": "2026-08-12", "medico": 2}},
   {"model": "app.ausencia", "pk": 3, "fields": {"motivo": "Licencia por enfermedad", "fecha_inicio": "2026-09-01", "fecha_fin": "2026-09-10", "medico": 3}},
-  {"model": "app.ausencia", "pk": 4, "fields": {"motivo": "Capacitación", "fecha_inicio": "2026-10-05", "fecha_fin": "2026-10-06", "medico": 4}}
+  {"model": "app.ausencia", "pk": 4, "fields": {"motivo": "Capacitación", "fecha_inicio": "2026-10-05", "fecha_fin": "2026-10-06", "medico": 4}},
+  {"model": "app.ausencia", "pk": 5, "fields": {"motivo": "Asuntos personales", "fecha_inicio": "2026-11-01", "fecha_fin": "2026-11-02", "medico": 1}},
+  {"model": "app.ausencia", "pk": 6, "fields": {"motivo": "Jornada de actualización", "fecha_inicio": "2026-11-15", "fecha_fin": "2026-11-15", "medico": 2}},
+  {"model": "app.ausencia", "pk": 7, "fields": {"motivo": "Licencia por maternidad", "fecha_inicio": "2026-12-01", "fecha_fin": "2027-02-28", "medico": 3}}
 ]
