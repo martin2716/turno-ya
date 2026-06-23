@@ -16,25 +16,22 @@
       <div class="collapse navbar-collapse" id="navMenu">
         <ul class="navbar-nav ms-auto">
           {% if user.is_authenticated %} {# Si el usuario está autenticado, muestra el menú de usuario y opciones privadas. #}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'app:lista_medicos' %}">Médicos</a> {# Enlace a la lista de médicos. #}
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'app:lista_turnos' %}">Turnos</a> {# Enlace a la lista de turnos. #}
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'app:lista_pacientes' %}">Pacientes</a> {# Enlace a la lista de pacientes. #}
-              <li class="nav-item">
-              <a class="nav-link" href="{% url 'app:nuevo_turno' %}">Nuevo Turno</a>
-          </li>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'app:nuevo_turno' %}">Nuevo Turno</a>
-          </li>
-          <li class="nav-item">
-            <span class="nav-link disabled">Hola, {{ user.username }}</span> {# Muestra el nombre del usuario autenticado. #}
-          </li>
-          <li class="nav-item">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'app:lista_medicos' %}">Medicos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'app:lista_turnos' %}">Turnos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'app:lista_pacientes' %}">Pacientes</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'app:nuevo_turno' %}">Nuevo Turno</a>
+        </li>
+        <li class="nav-item">
+          <span class="nav-link disabled">Hola, {{ user.username }}</span>
+        </li>
+        <li class="nav-item">
             <form method="post" action="{% url 'logout' %}" class="d-inline"> {# Formulario para cerrar sesión. #}
               {% csrf_token %} {# Token CSRF necesario para proteger el POST. #}
               <button type="submit" class="btn btn-link nav-link">Salir</button>

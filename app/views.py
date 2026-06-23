@@ -1,5 +1,5 @@
 """Vistas iniciales para navegar médicos y pantalla de inicio."""
-#111
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
