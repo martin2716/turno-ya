@@ -602,7 +602,7 @@ class TurnoModelTest(TestCase):
             motivo='Consulta',
             creado_por=self.user
         )
-        
+    
         self.assertFalse(turno.esta_confirmado())
         turno.aceptar()
         self.assertTrue(turno.esta_confirmado())
