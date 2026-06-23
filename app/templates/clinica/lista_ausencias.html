@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Ausencias — TurnoYa{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="h4">Ausencias</h2>
+  <a href="{% url 'app:nueva_ausencia' %}" class="btn btn-warning btn-sm">+ Nueva ausencia</a>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Médico</th>
+        <th>Motivo</th>
+        <th>Desde</th>
+        <th>Hasta</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ausencia in ausencias %}
+      <tr>
+        <td>{{ ausencia.medico.apellido }}, {{ ausencia.medico.nombre }}</td>
+        <td>{{ ausencia.motivo }}</td>
+        <td>{{ ausencia.fecha_inicio }}</td>
+        <td>{{ ausencia.fecha_fin }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4" class="text-center text-muted">No hay ausencias registradas.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
