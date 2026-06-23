@@ -10,30 +10,45 @@
   </div>
 </div>
 
-<div class="row g-3">
-  <div class="col-12 col-md-4">
-    <div class="card shadow-sm border-0 h-100">
-      <div class="card-body">
-        <p class="text-muted mb-2">Médicos registrados</p>
-        <h2 class="display-6 mb-0">{{ total_medicos }}</h2>
+{% if user.is_staff %}
+  <div class="row g-3">
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <p class="text-muted mb-2">Médicos registrados</p>
+          <h2 class="display-6 mb-0">{{ total_medicos }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <p class="text-muted mb-2">Especialidades cargadas</p>
+          <h2 class="display-6 mb-0">{{ total_especialidades }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <p class="text-muted mb-2">Usuarios creados</p>
+          <h2 class="display-6 mb-0">{{ total_usuarios }}</h2>
+        </div>
       </div>
     </div>
   </div>
-  <div class="col-12 col-md-4">
-    <div class="card shadow-sm border-0 h-100">
-      <div class="card-body">
-        <p class="text-muted mb-2">Especialidades cargadas</p>
-        <h2 class="display-6 mb-0">{{ total_especialidades }}</h2>
+{% else %}
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h3>¿Necesitás un turno?</h3>
+          <p>Podés ver la lista de nuestros médicos disponibles y reservar tu atención cuando quieras.</p>
+          <a href="{% url 'app:lista_medicos' %}" class="btn btn-success">Ver Médicos</a>
+        </div>
       </div>
     </div>
   </div>
-  <div class="col-12 col-md-4">
-    <div class="card shadow-sm border-0 h-100">
-      <div class="card-body">
-        <p class="text-muted mb-2">Usuarios creados</p>
-        <h2 class="display-6 mb-0">{{ total_usuarios }}</h2>
-      </div>
-    </div>
-  </div>
-</div>
+{% endif %}
+
 {% endblock %}

@@ -19,15 +19,32 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'app:lista_medicos' %}">Médicos</a>
           </li>
+          {% if perms.app.view_turno %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'app:lista_turnos' %}">Turnos</a>
+              <a class="nav-link" href="{% url 'app:lista_turnos' %}">Turnos</a>
           </li>
+          {% endif %}
+
+          {% if perms.app.view_paciente %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'app:lista_pacientes' %}">Pacientes</a>
+            </li>
+          {% endif %}
+
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'app:lista_pacientes' %}">Pacientes</a>
-          </li>
+              {% if not user.is_staff %}
+                {% if user.paciente %}
+                  <a class="nav-link" href="{% url 'app:editar_perfil' %}">Mi Perfil</a>
+                {% else %}
+                  <a class="nav-link" href="{% url 'app:crear_perfil' %}">Completar Perfil</a>
+                {% endif %}
+              {% endif %}
+            </li>
+
           <li class="nav-item">
-            <span class="nav-link disabled">Hola, {{ user.username }}</span>
+            <span class="nav-link disabled text-white">Hola {{ user.username }} </span>
           </li>
+
           <li class="nav-item">
             <form method="post" action="{% url 'logout' %}" class="d-inline">
               {% csrf_token %}
