@@ -1,8 +1,8 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {# Hereda la plantilla base con cabecera y navegación. #}
 
-{% block title %}Médicos — TurnoYa{% endblock %}
+{% block title %}Médicos — TurnoYa{% endblock %} {# Define el título de la página de médicos. #}
 
-{% block content %}
+{% block content %} {# Inicia el bloque principal donde se muestra la tabla de médicos. #}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h2 class="h4">Médicos</h2>
 </div>
@@ -35,18 +35,19 @@
       </tr>
     </thead>
     <tbody>
-      {% for medico in medicos %}
+      {% for medico in medicos %} {# Recorre todos los médicos enviados por la vista. #}
       <tr>
-        <td>{{ medico }}</td>
-        <td><code>{{ medico.matricula }}</code></td>
-        <td>{{ medico.especialidad }}</td>
+        <td>{{ medico }}</td> {# Muestra la representación legible del médico. #}
+        <td><code>{{ medico.matricula }}</code></td> {# Muestra la matrícula del médico. #}
+        <td>{{ medico.especialidad }}</td> {# Muestra la especialidad asociada. #}
       </tr>
-      {% empty %}
+      {% empty %} {# Si no hay médicos, muestra un mensaje. #}
       <tr>
         <td colspan="3" class="text-center text-muted">No se encontraron medicos.</td>
       </tr>
-      {% endfor %}
+      {% endfor %} {# Cierra el bucle for. #}
     </tbody>
   </table>
 </div>
-{% endblock %}
+{% endblock %} {# Cierra el bloque de contenido. #}
+{# Responsabilidad: Este template lista los médicos disponibles en el sistema, mostrando sus datos principales en una tabla. #}

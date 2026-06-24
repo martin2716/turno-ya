@@ -1,21 +1,22 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {# Hereda la plantilla base para mantener la misma estructura visual. #}
 
-{% block title %}Ingresar — TurnoYa{% endblock %}
+{% block title %}Ingresar — TurnoYa{% endblock %} {# Define el título de la página de login. #}
 
-{% block content %}
+{% block content %} {# Inicia el bloque principal de contenido para el formulario de login. #}
 <div class="row justify-content-center">
   <div class="col-12 col-md-6 col-lg-5">
     <div class="card shadow-sm">
       <div class="card-body p-4">
         <h1 class="h3 mb-3">Ingresar</h1>
         <p class="text-muted">Base inicial del grupo. Esta pantalla se puede mejorar en la etapa de autenticación.</p>
-        <form method="post">
-          {% csrf_token %}
-          {{ form.as_p }}
+        <form method="post"> {# Formulario POST para enviar credenciales de inicio de sesión. #}
+          {% csrf_token %} {# Inserta token CSRF para proteger el formulario. #}
+          {{ form.as_p }} {# Muestra el formulario de autenticación con estilo simple. #}
           <button type="submit" class="btn btn-success w-100">Entrar</button>
         </form>
       </div>
     </div>
   </div>
 </div>
-{% endblock %}
+{% endblock %} {# Cierra el bloque de contenido. #}
+{# Responsabilidad: Este template presenta el formulario de acceso para usuarios registrados, permitiendo el inicio de sesión en el sistema. #}
