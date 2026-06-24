@@ -2,6 +2,7 @@
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib import messages
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import (
@@ -12,8 +13,8 @@ from django.views.generic import (
     UpdateView,
 )
 
-from .forms import PerfilUsuarioForm, RegistroUsuarioForm
-from .models import Especialidad, Medico, Paciente, Turno
+from .forms import AusenciaForm, PerfilUsuarioForm, RegistroUsuarioForm
+from .models import Ausencia, Especialidad, Medico, Paciente, Turno
 
 
 class PerfilPacienteRequiredMixin(LoginRequiredMixin):
@@ -188,6 +189,44 @@ class PerfilUsuarioView(LoginRequiredMixin, FormView):
             )
 
         return super().form_valid(form)
+
+
+class ListaAusenciasView(PermissionRequiredMixin, ListView):
+    """Lista todas las ausencias registradas."""
+
+    model = Ausencia
+    template_name = "clinica/lista_ausencias.html"
+    context_object_name = "ausencias"
+    permission_required = "app.view_ausencia"
+
+    def handle_no_permission(self):
+        return redirect("app:home")
+
+
+class NuevaAusenciaView(PermissionRequiredMixin, CreateView):
+    """Permite al personal registrar una ausencia de un médico."""
+
+    model = Ausencia
+    form_class = AusenciaForm
+    template_name = "clinica/nueva_ausencia.html"
+    success_url = reverse_lazy("app:lista_ausencias")
+    permission_required = "app.add_ausencia"
+
+    def handle_no_permission(self):
+        return redirect("app:home")
+
+    def form_valid(self, form):
+        ausencia, errors = Ausencia.new(
+            motivo=form.cleaned_data["motivo"],
+            fecha_inicio=form.cleaned_data["fecha_inicio"],
+            fecha_fin=form.cleaned_data["fecha_fin"],
+            medico=form.cleaned_data["medico"],
+        )
+        if errors:
+            form.add_error(None, errors)
+            return self.form_invalid(form)
+        messages.success(self.request, "Ausencia registrada correctamente.")
+        return redirect(self.success_url)
 
 
 # TODO: implementar las siguientes vistas:
