@@ -9,12 +9,15 @@ urlpatterns = [
     path("", views.HomeView.as_view(), name="home"),
     path("medicos/", views.ListaMedicosView.as_view(), name="lista_medicos"),
     path("accounts/registro/", views.RegistroUsuarioView.as_view(), name="registro"),
+    path("perfil/", views.PerfilUsuarioView.as_view(), name="perfil_usuario"),
     path("pacientes/", views.ListaPacientesView.as_view(), name="lista_pacientes"),
     # TODO:
     # path("medicos/<int:pk>/", views.DetalleMedicoView.as_view(), name="detalle_medico"),
     path("turnos/", views.ListaTurnosView.as_view(), name="lista_turnos"),
     # path("turnos/nuevo/", views.NuevoTurnoView.as_view(), name="nuevo_turno"),
     # path("turnos/<int:pk>/cancelar/", views.CancelarTurnoView.as_view(), name="cancelar_turno"),
+    path("ausencias/", views.ListaAusenciasView.as_view(), name="lista_ausencias"),
+    path("ausencias/nueva/", views.NuevaAusenciaView.as_view(), name="nueva_ausencia"),
     path("perfil/editar/", views.PerfilUpdateView.as_view(), name="editar_perfil"),
     path("perfil/crear/", views.PerfilCreateView.as_view(), name="crear_perfil"),
 ]
