@@ -3,7 +3,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, DetailView, UpdateView
 from django.views.generic import ListView, TemplateView
 from .models import Especialidad, Medico, Turno, Paciente, Ausencia
 from .forms import AusenciaForm
@@ -182,6 +182,20 @@ class NuevaAusenciaView(PermissionRequiredMixin, CreateView):
             return self.form_invalid(form)
         messages.success(self.request, "Ausencia registrada correctamente.")
         return redirect(self.success_url)
+
+
+class DetalleMedicoView(DetailView):
+    """Vista detallada de un médico: info personal, obras sociales y ausencias."""
+
+    model = Medico
+    template_name = "clinica/detalle_medico.html"
+    context_object_name = "medico"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["ausencias"] = self.object.ausencias.order_by("fecha_inicio")
+        context["obras_sociales"] = self.object.obras_sociales.all()
+        return context
 
 
 # Etapa intermedia y final: completar estas vistas unicamente como CBV.
