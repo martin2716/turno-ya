@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Mi perfil - TurnoYa{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4 p-md-5">
+        <h1 class="h3 mb-3">{% if perfil_completo %}Actualizar perfil{% else %}Completar perfil{% endif %}</h1>
+        <p class="text-muted mb-4">
+          {% if perfil_completo %}
+          Mantén tus datos actualizados para gestionar turnos correctamente.
+          {% else %}
+          Antes de usar la app necesitamos tus datos personales y de contacto.
+          {% endif %}
+        </p>
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+          {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <form method="post" class="row g-3">
+          {% csrf_token %}
+
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+            {{ form.first_name }}
+            <div class="text-danger small">{{ form.first_name.errors }}</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+            {{ form.last_name }}
+            <div class="text-danger small">{{ form.last_name.errors }}</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+            {{ form.email }}
+            <div class="text-danger small">{{ form.email.errors }}</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.telefono.id_for_label }}">Teléfono</label>
+            {{ form.telefono }}
+            <div class="text-danger small">{{ form.telefono.errors }}</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.dni.id_for_label }}">DNI</label>
+            {{ form.dni }}
+            <div class="text-danger small">{{ form.dni.errors }}</div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="{{ form.obra_social.id_for_label }}">Obra social</label>
+            {{ form.obra_social }}
+            <div class="text-danger small">{{ form.obra_social.errors }}</div>
+          </div>
+
+          <div class="col-12 d-grid d-md-flex justify-content-md-end">
+            <button type="submit" class="btn btn-success">Guardar perfil</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
