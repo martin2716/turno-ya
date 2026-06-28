@@ -6,6 +6,12 @@ class AusenciaForm(forms.ModelForm):
     class Meta:
         model = Ausencia
         fields = ["medico", "motivo", "fecha_inicio", "fecha_fin"]
+        labels = {
+          "medico": "Médico",
+          "motivo": "Motivo",
+          "fecha_inicio": "Fecha de inicio",
+          "fecha_fin": "Fecha de fin",
+        }
         widgets = {
             "medico": forms.Select(attrs={"class": "form-select"}),
             "motivo": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
@@ -29,7 +35,5 @@ class AusenciaForm(forms.ModelForm):
         fecha_fin = cleaned_data.get("fecha_fin")
 
         if fecha_inicio and fecha_fin and fecha_fin < fecha_inicio:
-            raise forms.ValidationError(
-                "La fecha de fin no puede ser anterior a la de inicio."
-            )
+            self.add_error("fecha_fin", "La fecha de fin no puede ser anterior a la de inicio.")
         return cleaned_data
