@@ -31,6 +31,12 @@
             </li>
           {% endif %}
 
+          {% if perms.app.view_ausencia %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'app:lista_ausencias' %}">Ausencias</a>
+            </li>
+          {% endif %}
+
           <li class="nav-item">
               {% if not user.is_staff %}
                 {% if user.paciente %}
