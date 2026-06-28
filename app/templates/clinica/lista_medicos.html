@@ -10,7 +10,7 @@
 <form method="get" class="row g-3 mb-4 align-items-end">
   <div class="col-12 col-md-4">
     <label for="especialidad" class="form-label">Filtrar por especialidad</label>
-    <select name="especialidad" id="especialidad" class="form-select">
+    <select name="especialidad" id="especialidad" class="form-select" onchange="this.form.submit()">
       <option value="">Todas las especialidades</option>
       {% for esp in especialidades %}
         <option value="{{ esp.id }}" {% if request.GET.especialidad == esp.id|stringformat:"i" %}selected{% endif %}>
@@ -20,7 +20,6 @@
     </select>
   </div>
   <div class="col-12 col-md-auto">
-    <button type="submit" class="btn btn-primary">Filtrar</button>
     <a href="{% url 'app:lista_medicos' %}" class="btn btn-outline-secondary">Limpiar</a>
   </div>
 </form>
@@ -37,7 +36,7 @@
     <tbody>
       {% for medico in medicos %}
       <tr>
-        <td>{{ medico }}</td>
+        <td><a href="{% url 'app:detalle_medico' medico.pk %}">{{ medico }}</a></td>
         <td><code>{{ medico.matricula }}</code></td>
         <td>{{ medico.especialidad }}</td>
       </tr>
