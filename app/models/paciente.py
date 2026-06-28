@@ -12,6 +12,30 @@ class Paciente(models.Model):
     dni = models.CharField(max_length=20, unique=True)
     obra_social = models.ForeignKey(ObraSocial, on_delete=models.PROTECT, null=False, blank=False)
 
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=~models.Q(nombre=""),
+                name="paciente_nombre_no_vacio",
+            ),
+            models.CheckConstraint(
+                check=~models.Q(apellido=""),
+                name="paciente_apellido_no_vacio",
+            ),
+            models.CheckConstraint(
+                check=~models.Q(dni=""),
+                name="paciente_dni_no_vacio",
+            ),
+            models.CheckConstraint(
+                check=~models.Q(telefono=""),
+                name="paciente_telefono_no_vacio",
+            ),
+            models.CheckConstraint(
+                check=~models.Q(email=""),
+                name="paciente_email_no_vacio",
+            ),
+        ]
+
     def __str__(self):
         return f"{self.apellido}, {self.nombre}"
 
@@ -47,7 +71,9 @@ class Paciente(models.Model):
         if query.exists():
             errors.append("Ya existe un paciente registrado con ese DNI.")
 
-        if email and "@" not in email:
+        if not email or not email.strip():
+            errors.append("El email es obligatorio.")
+        elif "@" not in email:
             errors.append("El email ingresado no es válido.")
 
         return errors
