@@ -1,17 +1,25 @@
 Tareas que se me dieron a mi para sumar al proyecto:
 
-Area	Subtarea	Que tiene que hacer exactamente	Entregable concreto	Criterio que cubre	Dependencia	Estado	Notas
-- Modelos	Revisar Ausencia	Confirmar que fechas, motivo y relacion con medico sirvan para el flujo final	Modelo Ausencia consolidado	Modelo correcto	Repo actual	✅ COMPLETO	Modelo tiene motivo, fecha_inicio, fecha_fin, FK a Medico, CheckConstraint fecha_fin>=fecha_inicio, y metodos validate/new/update correctos
-- Forms	Crear formulario de ausencia	Implementar validacion de fechas y conflictos basicos	Formulario de ausencia	Formulario de creacion de ausencias / validacion personalizada	Modelo Ausencia estable	⏳ PENDIENTE	No existe forms.py ni carpeta forms/. Proximo paso: crear app/forms/ con __init__.py y ausencia.py
-- CBV	Implementar DetalleMedicoView	Mostrar datos del medico, especialidad, obras sociales y ausencias	Detalle de medico final	Detalle de medico	Medico y Ausencia estables	⏳ PENDIENTE	URL medicos/<int:pk>/ esta comentada en urls.py. Vista no implementada en views.py
-- CBV	Implementar vista de nueva ausencia	Usar formulario de ausencia y proteger accion	Alta de ausencia funcional	Formulario de creacion de ausencias	Form de ausencia listo	⏳ PENDIENTE	Depende de que el form de ausencia este listo primero
-- Templates	Crear template de detalle de medico	Mostrar informacion clara y ordenada con Bootstrap	Template detalle medico	Templates Bootstrap 5 responsivos	DetalleMedicoView lista	⏳ PENDIENTE	No existe detalle_medico.html. Debe mostrar obras sociales y ausencias del medico
-- Templates	Apoyar templates del flujo de turnos	Revisar lista_turnos, alta de turno y acciones visibles junto a Misael	Templates de turnos coherentes	UX funcional	Vistas de turno listas	⏳ PENDIENTE	lista_turnos.html existe pero NuevoTurnoView y CancelarTurnoView no estan implementadas. Coordinar con Misael
-- Templates	Pulir templates actuales	Revisar home, lista_medicos, lista_turnos, lista_pacientes, login y signup	Templates consistentes	UX cuidada y responsive	Vistas finales	⏳ PENDIENTE	Los templates existen (8 en total). Falta revision de calidad y consistencia visual
-- Frontend	Probar vistas en mobile y desktop	Detectar tablas rotas, navbar incomoda o formularios desbordados	Lista de ajustes responsive	Templates Bootstrap 5 responsivos	Templates finales	⏳ PENDIENTE	Hacer pruebas reales
-- Tests	Revisar y completar tests de Ausencia	Ajustar si cambia la validacion o el flujo	Tests de Ausencia pasando	Todos los modelos testeados y con tests pasando	Modelo/form final	✅ COMPLETO (modelo) / ⏳ PENDIENTE (form y vista)	AusenciaModelTest tiene 6 tests cubriendo validate/new/update. Faltan tests del formulario y de la vista cuando esten listos
-- Tests	Agregar tests de vistas y forms de turnos y ausencias	Cubrir formularios, alta, acciones y permisos basicos de esas vistas	Robustez funcional	Evidencia de funcionamiento	Vistas y forms listos	⏳ PENDIENTE	No hay tests de vistas ni de forms todavia. Coordinar con Misael
-- Pulido	Agregar mensajes vacios, titulos y textos coherentes	Mejorar usabilidad general sin usar JS complejo	Pulido visual final	Frontend sin JS complejo / UX cuidada	Vistas finales	⏳ PENDIENTE	Suma mucho en evaluacion
+
+---
+
+## Buenas prácticas: triple validación
+
+Una regla de negocio importante (por ejemplo, que la fecha de fin no puede ser anterior a la de inicio) debe validarse en tres capas:
+
+1. **Frontend / Form (feedback visual):** el formulario Django con `clean()` o `clean_<campo>()` devuelve errores al usuario junto al campo que los causó. Es la primera barrera y la que da mejor UX.
+
+2. **Modelo / `validate()`:** el método `validate()` en el modelo centraliza las reglas de negocio. Se llama desde `new()` y `update()`, por lo que protege cualquier vía de entrada: la vista web, el admin de Django, comandos de management, etc.
+
+3. **Base de datos / `CheckConstraint`:** el constraint a nivel DB es la última barrera. No depende de Python ni de Django — si alguien logra ejecutar un `INSERT` o `UPDATE` directamente, la base de datos lo rechaza igual.
+
+**¿Por qué las tres?**
+- El front puede bypassearse (JS deshabilitado, requests directas).
+- El form solo protege la vista web.
+- El modelo protege todas las entradas de datos.
+- La DB protege ante errores del propio código.
+
+Cada capa es independiente. Que existan las tres no es redundancia, es defensa en profundidad.
 
 ---
 
