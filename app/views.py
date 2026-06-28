@@ -14,7 +14,7 @@ from django.views.generic import (
     UpdateView,
 )
 
-from .forms import PerfilUsuarioForm, RegistroUsuarioForm, AusenciaForm
+from .forms import AusenciaForm, PerfilUsuarioForm, RegistroPacienteForm
 from .models import Especialidad, Medico, Paciente, Turno, Ausencia
 
 
@@ -22,6 +22,8 @@ class PerfilPacienteRequiredMixin(LoginRequiredMixin):
     """Redirige al usuario para completar su perfil antes de usar la app."""
 
     def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
         if request.user.is_staff:
             return super().dispatch(request, *args, **kwargs)
         if not Paciente.objects.filter(usuario=request.user).exists():
@@ -29,7 +31,7 @@ class PerfilPacienteRequiredMixin(LoginRequiredMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class HomeView(PerfilPacienteRequiredMixin, TemplateView):
+class HomeView(TemplateView):
     """Vista de inicio con estadísticas generales."""
 
     template_name = "clinica/home.html"
@@ -43,7 +45,7 @@ class HomeView(PerfilPacienteRequiredMixin, TemplateView):
         return context
 
 
-class ListaMedicosView(PerfilPacienteRequiredMixin, ListView):
+class ListaMedicosView(ListView):
     """Lista todos los médicos, con filtro opcional por especialidad."""
 
     model = Medico
@@ -77,12 +79,25 @@ class ListaTurnosView(PermissionRequiredMixin, ListView):
         return redirect("app:home")
 
 
-class RegistroUsuarioView(CreateView):
-    """Registro inicial de usuarios."""
+class RegistroUsuarioView(FormView):
+    """Registro de paciente: crea el User y el Paciente en un único paso."""
 
-    form_class = RegistroUsuarioForm
+    form_class = RegistroPacienteForm
     template_name = "registration/signup.html"
     success_url = reverse_lazy("login")
+
+    def form_valid(self, form):
+        user = form.save()
+        Paciente.new(
+            usuario=user,
+            nombre=form.cleaned_data["first_name"],
+            apellido=form.cleaned_data["last_name"],
+            email=form.cleaned_data["email"],
+            telefono=form.cleaned_data["telefono"],
+            dni=form.cleaned_data["dni"],
+            obra_social=form.cleaned_data["obra_social"],
+        )
+        return super().form_valid(form)
 
 
 class ListaPacientesView(PermissionRequiredMixin, ListView):
