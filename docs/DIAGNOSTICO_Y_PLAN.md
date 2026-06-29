@@ -188,3 +188,80 @@ que regresó.
     de `RegistroPacienteForm`.
 - **Filtro de `lista_medicos.html` sin JS** (ver aviso al inicio del doc): botón
   "Filtrar" o dropdown de Bootstrap con links.
+
+## 7. Funcionalidad pendiente del rol Médico (según `usabilidad.md`)
+
+El flujo de turnos (aceptar/rechazar) está, pero el rol médico tiene varias
+capacidades de `usabilidad.md` **todavía sin implementar**:
+
+**Requeridas (no opcionales):**
+- [ ] **Médico edita sus propios datos.** Hoy `PerfilUsuarioView` es solo para
+      pacientes; no hay edición de perfil para el médico.
+- [ ] **Ver listado de pacientes ya atendidos** (derivado de sus turnos `finalizado`).
+- [ ] **Filtrar/ver el historial de un paciente** específico (sus turnos pasados).
+- [ ] **Separar turnos futuros vs pasados** en la vista del médico (hoy `ListaTurnosView`
+      los muestra todos juntos, sin distinción).
+
+**Opcionales (marcadas como opcionales en `usabilidad.md`):**
+- [ ] Médico **ve** su franja horaria disponible.
+- [ ] Médico **define** su franja horaria desde el front (hoy solo vía admin/fixtures).
+
+**Otras mejoras de gestión:**
+- [ ] **Ausencias desde el front para el médico.** Hoy `NuevaAusenciaView` está detrás
+      de `PermissionRequiredMixin('app.add_ausencia')` → solo staff. El médico no puede
+      cargar sus ausencias por la UI. (Nota: `usabilidad.md` no lo lista explícito en el
+      rol médico, pero es deseable y se conversó.)
+
+> Resumen: la **funcionalidad central de turnos** (sacar / aceptar / rechazar /
+> cancelar, con los 3 roles) está terminada y verificada. Lo de arriba son
+> capacidades adicionales del rol médico y de gestión, a planificar con el grupo.
+
+## 8. Gap analysis contra `consigna.md` (cumplimiento)
+
+Leyenda de dificultad: 🟢 trivial (URL / ajuste chico) · 🟡 medio (1 vista CBV +
+template siguiendo patrones existentes) · 🔴 difícil (modelo nuevo / rediseño / lógica).
+
+### 8.1 Criterios de aceptación obligatorios — TODOS cumplidos
+- ✅ Modelos con `validate/new/update` · ✅ Migraciones funcionales · ✅ Solo CBV ·
+  ✅ Login/logout/registro · ✅ Permisos por tipo de usuario · ✅ Navbar dinámica ·
+  ✅ Admin personalizado (list_display/filter) · ✅ ≥2 forms con validación propia ·
+  ✅ Modelos testeados (58 tests OK) · ✅ Bootstrap 5 responsivo · ✅ README existe (135 líneas).
+- ✅ Vistas protegidas con login — salvo home y lista de médicos (públicas, pactado).
+- 🟢 **"Frontend sin JS para lógica compleja":** la consigna prohíbe *lógica compleja*
+  en JS. El `fetch` del buscador ya se quitó; queda solo `onchange="this.form.submit()"`
+  en `lista_medicos.html`, que NO es lógica compleja → **cumple la consigna**. (La regla
+  más estricta de "cero JS" es del grupo, no de la consigna; ver aviso al inicio.)
+- ⚙️ **Mínimo 10 commits por integrante:** proceso/Git, no código. Verificar en GitHub.
+
+### 8.2 Las 13 características obligatorias del TP — TODAS implementadas ✅
+1. Login/logout/registro/permisos · 2. Navbar dinámica · 3. Admin · 4. Home con
+estadísticas · 5. Tabla de médicos con filtro por especialidad · 6. Detalle de médico
+(info + obras sociales + ausencias) · 7. Formulario de creación de turno · 8. Listado de
+turnos del médico · 9. Perfil de usuario · 10. Formulario de ausencias · 11. Listado de
+pacientes · 12. Cancelación de turnos · 13. Aceptación de turnos por el médico.
+
+> **Conclusión:** para la lista obligatoria del TP, **no falta nada**. Lo que sigue son
+> opcionales y refinamientos.
+
+### 8.3 Tareas opcionales del TP
+- **Opcional 1 — Recordatorios** (modelo + manejo + visualización): ❌ no hecho → 🔴.
+- **Opcional 2 — Franjas horarias** (modelo + complejización de turnos y detalle médico):
+  🟡 casi completo. Modelo `FranjaHoraria` ✅ y turnos leen de él ✅. **Falta** mostrar las
+  franjas en el **detalle del médico** (`detalle_medico.html` muestra obras sociales y
+  ausencias, no franjas) → 🟢 agregar al template (+ pasar `franjas` en `DetalleMedicoView`).
+- **Opcional 3 — Reprogramación automática ante ausencia** con confirmación: ❌ → 🔴.
+- **Opcional 4 — Historial de pacientes para el médico** (a partir de turnos): ❌ → 🟡.
+
+> ⚠️ **CAVEAT CRÍTICO (consigna línea 169):** *"Grupos de 5 deberán tomar las tareas
+> opcionales 1 y 2 como obligatorias."* Si el grupo es de 5 integrantes, **Recordatorios
+> (1) pasa a obligatorio y está SIN hacer (🔴)**, y Franjas (2) debe completarse (el
+> detalle del médico). **Verificar el tamaño del grupo cuanto antes** — es el mayor riesgo.
+
+### 8.4 Refinamientos del rol médico (de `usabilidad.md`, ver sección 7)
+- 🟡 Médico edita sus datos · 🟡 Ver pacientes atendidos (se solapa con opcional 4) ·
+  🟡 Médico define franjas desde el front · 🟢/🟡 separar turnos futuros/pasados.
+- 🟡 Ausencias desde el front para el médico (hoy solo staff).
+
+### 8.5 Deuda técnica
+- 🟢 Reemplazar `onchange` JS en `lista_medicos.html` (regla estricta del grupo).
+- 🟡 Tests de vistas/permisos (ver sección Fase 4).
