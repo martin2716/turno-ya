@@ -13,8 +13,8 @@ class RegistroPacienteForm(UserCreationForm):
     dni = forms.CharField(max_length=20, label="DNI")
     obra_social = forms.ModelChoiceField(
         queryset=ObraSocial.objects.order_by("nombre"),
-        required=False,
-        empty_label="Sin obra social",
+        required=True,
+        empty_label="-- Seleccioná una obra social --",
         label="Obra social",
     )
 
@@ -42,12 +42,15 @@ class RegistroPacienteForm(UserCreationForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        if self.errors:
+            return cleaned_data
         errors = Paciente.validate(
             cleaned_data.get("first_name", ""),
             cleaned_data.get("last_name", ""),
             cleaned_data.get("dni", ""),
             cleaned_data.get("email", ""),
             cleaned_data.get("telefono", ""),
+            cleaned_data.get("obra_social"),
         )
         if errors:
             raise forms.ValidationError(errors)
@@ -62,8 +65,8 @@ class PerfilUsuarioForm(forms.Form):
     dni = forms.CharField(max_length=20)
     obra_social = forms.ModelChoiceField(
         queryset=ObraSocial.objects.order_by("nombre"),
-        required=False,
-        empty_label="Sin obra social",
+        required=True,
+        empty_label="-- Seleccioná una obra social --",
     )
 
     def __init__(self, *args, user=None, paciente=None, **kwargs):
@@ -102,9 +105,10 @@ class PerfilUsuarioForm(forms.Form):
         telefono = cleaned_data.get("telefono", "")
         dni = cleaned_data.get("dni", "")
 
+        obra_social = cleaned_data.get("obra_social")
         if any([nombre, apellido, email, telefono, dni]):
             errors = Paciente.validate(
-                nombre, apellido, dni, email, telefono, instance=self.paciente
+                nombre, apellido, dni, email, telefono, obra_social, instance=self.paciente
             )
             if errors:
                 raise forms.ValidationError(errors)

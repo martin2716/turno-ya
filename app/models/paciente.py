@@ -48,7 +48,7 @@ class Paciente(models.Model):
     
 
     @classmethod
-    def validate(cls, nombre, apellido, dni, email, telefono,obra_social, instance=None):
+    def validate(cls, nombre, apellido, dni, email, telefono, obra_social, instance=None):
         errors = []
 
         if not nombre or not nombre.strip():
