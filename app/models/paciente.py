@@ -1,3 +1,5 @@
+import re
+
 from django.db import models
 from django.contrib.auth.models import User
 from .obra_social import ObraSocial
@@ -53,10 +55,18 @@ class Paciente(models.Model):
 
         if not nombre or not nombre.strip():
             errors.append("El nombre es obligatorio.")
+        elif not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$", nombre.strip()):
+            errors.append("El nombre solo puede contener letras.")
         if not apellido or not apellido.strip():
             errors.append("El apellido es obligatorio.")
+        elif not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$", apellido.strip()):
+            errors.append("El apellido solo puede contener letras.")
         if not dni or not dni.strip():
             errors.append("El DNI es obligatorio.")
+        elif not re.match(r"^\d+$", dni.strip()):
+            errors.append("El DNI solo puede contener números.")
+        if telefono and not re.match(r"^\d+$", telefono.strip()):
+            errors.append("El teléfono solo puede contener números.")
         if not obra_social:
             errors.append("La obra social es obligatoria.")
         else:
