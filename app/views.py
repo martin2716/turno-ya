@@ -27,7 +27,8 @@ class PerfilPacienteRequiredMixin(LoginRequiredMixin):
         if request.user.is_staff:
             return super().dispatch(request, *args, **kwargs)
         if not Paciente.objects.filter(usuario=request.user).exists():
-            return redirect("app:crear_perfil")
+            # revisar ESTTOOOO
+            return redirect("app:home")
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -110,49 +111,6 @@ class ListaPacientesView(PermissionRequiredMixin, ListView):
 
     def handle_no_permission(self):
         return redirect("app:home")
-
-
-class PerfilUpdateView(LoginRequiredMixin, UpdateView):
-    model = Paciente
-    fields = ["nombre", "apellido", "telefono", "obra_social"]
-    template_name = "clinica/perfil_form.html"
-    success_url = reverse_lazy("app:home")
-
-    def dispatch(self, request, *args, **kwargs):
-        if not hasattr(request.user, "paciente") and not request.user.is_staff:
-            return redirect("app:crear_perfil")
-
-        if request.user.is_staff:
-            return redirect("app:home")
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_object(self, queryset=None):
-        return self.request.user.paciente
-
-
-class PerfilCreateView(LoginRequiredMixin, CreateView):
-    model = Paciente
-    fields = ["nombre", "apellido", "email", "telefono", "dni", "obra_social"]
-    template_name = "clinica/perfil_form.html"
-    success_url = reverse_lazy("app:home")
-
-    def form_valid(self, form):
-        paciente, errors = Paciente.new(
-            usuario=self.request.user,
-            nombre=form.cleaned_data["nombre"],
-            apellido=form.cleaned_data["apellido"],
-            email=form.cleaned_data["email"],
-            telefono=form.cleaned_data["telefono"],
-            dni=form.cleaned_data["dni"],
-            obra_social=form.cleaned_data["obra_social"],
-        )
-
-        if errors:
-            form.add_error(None, errors)
-            return self.form_invalid(form)
-
-        return redirect(self.success_url)
 
 
 

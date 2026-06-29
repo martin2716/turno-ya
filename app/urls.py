@@ -17,6 +17,4 @@ urlpatterns = [
     # path("turnos/<int:pk>/cancelar/", views.CancelarTurnoView.as_view(), name="cancelar_turno"),
     path("ausencias/", views.ListaAusenciasView.as_view(), name="lista_ausencias"),
     path("ausencias/nueva/", views.NuevaAusenciaView.as_view(), name="nueva_ausencia"),
-    path("perfil/editar/", views.PerfilUpdateView.as_view(), name="editar_perfil"),
-    path("perfil/crear/", views.PerfilCreateView.as_view(), name="crear_perfil"),
 ]
