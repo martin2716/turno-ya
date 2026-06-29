@@ -27,30 +27,32 @@ Cada capa es independiente. Que existan las tres no es redundancia, es defensa e
 
 ### ✅ COMPLETADO
 
-- **Modelos**: Los 6 modelos estan implementados con el patron validate/new/update
-  - Especialidad, Medico, Paciente, ObraSocial, Turno, Ausencia
+- **Modelos**: Los 6 modelos implementados con el patron validate/new/update
   - Todos en app/models/ como carpeta con __init__.py
+- **Paciente**: CheckConstraints agregados para todos los campos obligatorios. Validaciones de formato (solo letras en nombre/apellido, solo numeros en DNI/telefono) en validate() y en el form.
 - **Ausencia**: modelo completo con CheckConstraint y los 3 metodos requeridos
-- **Admin**: 5 modelos registrados con list_display, search_fields y list_filter (falta Ausencia)
+- **Admin**: modelos registrados con list_display, search_fields y list_filter
 - **Autenticacion**: login, logout y registro funcionando con CBV
-- **Navbar dinamica**: cambia segun autenticacion y rol
+- **Navbar dinamica**: cambia segun autenticacion, rol y permisos
 - **Permisos**: LoginRequiredMixin y PermissionRequiredMixin aplicados en vistas
-- **Vistas CBV implementadas**: HomeView, ListaMedicosView, ListaTurnosView, RegistroUsuarioView, ListaPacientesView, PerfilUpdateView, PerfilCreateView (7 vistas)
-- **Templates existentes**: base.html, login.html, signup.html, home.html, lista_medicos.html, lista_pacientes.html, lista_turnos.html, perfil_form.html (8 templates)
-- **Tests de modelos**: 48+ tests cubriendo todos los modelos (test_models.py)
-- **Filtro por especialidad** en lista de medicos implementado
-- **Migraciones** commiteadas y funcionales
+- **Forms**: reorganizados en carpeta app/forms/ con __init__.py que exporta todo
+  - AusenciaForm, RegistroPacienteForm, PerfilUsuarioForm en sus archivos correspondientes
+  - Triple validacion aplicada: form + validate() + CheckConstraint
+- **Vistas CBV implementadas**: HomeView, ListaMedicosView, ListaTurnosView, RegistroUsuarioView, ListaPacientesView, PerfilUsuarioView, ListaAusenciasView, NuevaAusenciaView, DetalleMedicoView
+- **Registro de paciente**: crea User y Paciente en un unico paso (RegistroPacienteForm)
+- **Perfil de paciente**: vista unificada PerfilUsuarioView que edita User y Paciente juntos
+- **DetalleMedicoView**: muestra info, obras sociales y ausencias del medico
+- **Templates**: login.html, signup.html, perfil_usuario.html, nueva_ausencia.html, detalle_medico.html con Bootstrap aplicado correctamente (form-control, form-select, is-invalid, bloques de error)
+- **Filtro reactivo** por especialidad en lista de medicos (submit automatico al cambiar el select)
+- **Home y lista de medicos**: accesibles sin login (acuerdo con el profesor)
+- **Migraciones**: commiteadas y funcionales
 
 ### ⏳ PENDIENTE (mis tareas)
 
-1. Crear carpeta app/forms/ con __init__.py y AusenciaForm (ausencia.py)
-2. Implementar DetalleMedicoView en views.py y descomentar su URL
-3. Implementar NuevaAusenciaView en views.py
-4. Crear template detalle_medico.html
-5. Crear template nueva_ausencia.html
-6. Registrar Ausencia en admin.py
-7. Agregar tests de formularios y vistas (ausencia y turnos)
-8. Pulir templates existentes (UX, mensajes vacios, responsivo mobile)
+1. Registrar Ausencia en admin.py
+2. Agregar tests de formularios y vistas (ausencia, paciente y registro)
+3. Definir rol Medico con usuario asociado (pendiente decision del grupo)
+4. Actualizar PerfilPacienteRequiredMixin cuando se defina el rol Medico
 
 ### ⚠️ PENDIENTE (vistas que faltan del proyecto general, coordinar con el grupo)
 
@@ -58,3 +60,4 @@ Cada capa es independiente. Que existan las tres no es redundancia, es defensa e
 - CancelarTurnoView (URL comentada en urls.py)
 - AceptarTurnoView (no existe ni la URL)
 - Templates de turno relacionados con las vistas anteriores
+- Modelo de Medico con usuario asociado (OneToOneField a User)
