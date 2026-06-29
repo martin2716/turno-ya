@@ -139,8 +139,22 @@ que regresó.
 - [x] Flujo como **paciente**: sacar turno y cancelar → OK.
 - [x] Flujo como **médico**: aceptar/rechazar turnos asignados → OK (requiere
       asociar el `User` a un `Medico` desde el admin).
-- [ ] Flujo como **admin**: sacar turno a otro + aceptar/rechazar.
-- [ ] Tests para el nuevo `Turno` y el flujo.
+- [x] Flujo como **admin**: sacar turno a otro + aceptar/rechazar/cancelar.
+- [x] Tests de modelo: reescrito `TurnoModelTest` al esquema nuevo (validate, new,
+      update, duplicado, transiciones aceptar/rechazar/cancelar/finalizar) + nuevo
+      `FranjaHorariaModelTest`. **58 tests en verde.**
+- [ ] **PENDIENTE — Tests de vistas/flujo** (recomendado, no hecho aún). Cubren la
+      lógica más riesgosa (permisos por rol), que los tests de modelo NO tocan. Casos:
+      · Anónimo es redirigido al login en vistas no públicas (ej. `DetalleMedicoView`,
+        flujo de turnos); home y lista de médicos siguen públicas.
+      · Usuario sin perfil de `Paciente` → `PerfilPacienteRequiredMixin` lo manda a home.
+      · Booking end-to-end: paciente saca turno → queda `pendiente` y a su nombre.
+      · `ListaTurnosView` filtra por rol: paciente ve solo los suyos, médico solo los
+        asignados, admin todos.
+      · `AceptarTurnoView`/`RechazarTurnoView`: solo el médico asignado o staff; un
+        tercero no puede; solo sobre `pendiente`.
+      · `CancelarTurnoView`: solo dueño o staff.
+      · Generación de slots desde `FranjaHoraria` (médico sin franjas no aparece).
 - [ ] Recién entonces, proponer el merge de `feat/flujo-pedir-turno` a `main`.
 
 **Bugs encontrados y corregidos durante la verificación:**
