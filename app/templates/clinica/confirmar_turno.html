@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}confirmar turno{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4>confirmar turno</h4>
+                </div>
+                <div class="card-body">
+                    <p>confirma los datos del turno:</p>
+                    
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item">
+                            <strong>medico:</strong> dr/a. {{ medico.apellido }}, {{ medico.nombre }}
+                        </li>
+                        
+                        {% if es_admin %}
+                            <!-- admin: puede buscar paciente por dni -->
+                            <li class="list-group-item">
+                                <strong>paciente:</strong>
+                                <input type="text" id="buscar-paciente" class="form-control mt-2" 
+                                       placeholder="buscar por dni o nombre...">
+                                <div id="resultados-pacientes" class="list-group mt-1" style="display:none;"></div>
+                            </li>
+                        {% else %}
+                            <!-- usuario normal: paciente fijo -->
+                            <li class="list-group-item">
+                                <strong>paciente:</strong> {{ paciente.nombre }} {{ paciente.apellido }}
+                            </li>
+                        {% endif %}
+                        
+                        <li class="list-group-item">
+                            <strong>fecha y hora:</strong> {{ fecha_hora|date:"d/m/Y H:i" }}
+                        </li>
+                    </ul>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {# hidden input para el paciente (solo admin) #}
+                        {% if es_admin %}
+                            <input type="hidden" name="paciente_id" id="paciente-id">
+                        {% endif %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    {{ field.label }}
+                                    {% if field.field.required %}
+                                        <span class="text-danger">*</span>
+                                    {% endif %}
+                                </label>
+                                <textarea name="{{ field.name }}" 
+                                          id="{{ field.id_for_label }}" 
+                                          class="form-control auto-resize"
+                                          rows="2"
+                                          placeholder="{{ field.field.widget.attrs.placeholder|default:'' }}"
+                                          {% if field.field.required %}required{% endif %}>{{ field.value|default:'' }}</textarea>
+                                {% if field.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in field.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'app:seleccionar_especialidad' %}" class="btn btn-secondary">
+                                cancelar
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                confirmar turno
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // auto-resize para textareas
+    document.querySelectorAll('.auto-resize').forEach(function(textarea) {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+        setTimeout(function() {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+        }, 100);
+    });
+    
+    // buscador de pacientes para admin
+    var inputBuscar = document.getElementById('buscar-paciente');
+    var inputId = document.getElementById('paciente-id');
+    var resultados = document.getElementById('resultados-pacientes');
+    
+    if (inputBuscar) {
+        inputBuscar.addEventListener('input', function() {
+            var q = this.value.trim();
+            if (q.length < 2) {
+                resultados.style.display = 'none';
+                return;
+            }
+            
+            fetch('/buscar-pacientes/?q=' + encodeURIComponent(q))
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    resultados.innerHTML = '';
+                    if (data.length === 0) {
+                        resultados.innerHTML = '<div class="list-group-item text-muted">no se encontraron pacientes</div>';
+                        resultados.style.display = 'block';
+                        return;
+                    }
+                    data.forEach(function(p) {
+                        var item = document.createElement('a');
+                        item.href = '#';
+                        item.className = 'list-group-item list-group-item-action';
+                        item.textContent = p.nombre + ' (dni: ' + p.dni + ')';
+                        item.dataset.id = p.id;
+                        item.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            inputBuscar.value = this.textContent;
+                            inputId.value = this.dataset.id;
+                            resultados.style.display = 'none';
+                        });
+                        resultados.appendChild(item);
+                    });
+                    resultados.style.display = 'block';
+                });
+        });
+    }
+});
+</script>
+
+<style>
+    .auto-resize {
+        overflow: hidden;
+        resize: vertical;
+        min-height: 60px;
+        transition: height 0.1s ease;
+    }
+    .auto-resize:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+    #resultados-pacientes {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: white;
+        position: relative;
+        z-index: 10;
+    }
+    #resultados-pacientes .list-group-item {
+        border: none;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+    }
+    #resultados-pacientes .list-group-item:hover {
+        background-color: #f0f0f0;
+    }
+</style>
+{% endblock %}"#"  
