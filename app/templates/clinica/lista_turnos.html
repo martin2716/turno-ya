@@ -6,7 +6,7 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Turnos</h2>
-        <a href="{% url 'app:nuevo_turno' %}" class="btn btn-primary">+ Nuevo Turno</a>
+        <a href="{% url 'app:seleccionar_especialidad' %}" class="btn btn-primary">+ Pedir Turno</a>
     </div>
     
     <!-- formulario de busqueda -->
@@ -61,25 +61,30 @@
                         </span>
                     </td>
                     <td>
-                        {% if turno.estado == 'pendiente' %}
-                            <form method="post" action="{% url 'app:aceptar_turno' turno.pk %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-success" 
-                                        onclick="return confirm('¿Confirmar este turno?')">
-                                    Aceptar
-                                </button>
-                            </form>
-                        {% endif %}
-                        
-                        {% if turno.estado != 'cancelado' and turno.estado != 'finalizado' %}
-                            <form method="post" action="{% url 'app:cancelar_turno' turno.pk %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm btn-danger" 
-                                        onclick="return confirm('¿Cancelar este turno?')">
-                                    Cancelar
-                                </button>
-                            </form>
+                        {% if user.is_staff %}
+                            <!-- boton aceptar (solo admins/staff) -->
+                            {% if turno.estado == 'pendiente' %}
+                                <form method="post" action="{% url 'app:aceptar_turno' turno.pk %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-success" 
+                                            onclick="return confirm('¿Confirmar este turno?')">
+                                        Aceptar
+                                    </button>
+                                </form>
+                            {% endif %}
+                            
+                            <!-- boton cancelar (solo admins/staff) -->
+                            {% if turno.estado != 'cancelado' and turno.estado != 'finalizado' %}
+                                <form method="post" action="{% url 'app:cancelar_turno' turno.pk %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-danger" 
+                                            onclick="return confirm('¿Cancelar este turno?')">
+                                        Cancelar
+                                    </button>
+                                </form>
+                            {% endif %}
                         {% else %}
+                            <!-- usuarios normales: solo ven el estado, sin acciones -->
                             <span class="text-muted">Sin acciones</span>
                         {% endif %}
                     </td>

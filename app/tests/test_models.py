@@ -131,8 +131,7 @@ class MedicoModelTest(TestCase):
         self.medico.refresh_from_db()
         self.assertEqual(self.medico.nombre, "Laura")  # sin cambios
 
-    # TODO: agregar tests para Turno cuando los implementen
-    
+
 class PacienteModelTest(TestCase):
     """Verifica comportamiento básico y validaciones del modelo Paciente."""
 
@@ -150,7 +149,7 @@ class PacienteModelTest(TestCase):
             telefono="123456",
             dni="11111111",
             obra_social=self.obra_social)
-        
+
     # --- __str__ y métodos simples ---
 
     def test_str_formato_correcto(self):
@@ -177,7 +176,6 @@ class PacienteModelTest(TestCase):
         self.paciente.telefono = ""
         self.assertFalse(self.paciente.puede_solicitar_turno())
 
-    
     # --- validate ---
 
     def test_validate_datos_correctos_retorna_lista_vacia(self):
@@ -206,25 +204,24 @@ class PacienteModelTest(TestCase):
     # --- new ---
 
     def test_new_crea_paciente_con_datos_validos(self):
-        # 1. Preparar un usuario 
+        # 1. Preparar un usuario
         nuevo_user = User.objects.create_user(username="roberto")
-        
-        # 2. Llamar a new 
+
+        # 2. Llamar a new
         paciente, errors = Paciente.new(
             nuevo_user, "Roberto", "Rubidarte", "roberto@test.com", "654321", "46087375", self.obra_social
         )
-        
-        # 3. Verificaciones 
+
+        # 3. Verificaciones
         self.assertEqual(errors, [])             # Que no haya errores
         self.assertIsNotNone(paciente)           # Que el objeto no sea None
         self.assertEqual(paciente.nombre, "Roberto") # Que el nombre sea el que pasamos
         self.assertTrue(Paciente.objects.filter(dni="46087375").exists()) # ¡que esté en la base de datos!
 
-
     def test_new_con_datos_invalidos_no_crea_paciente(self):
         # 1. Contamos cuántos pacientes hay antes de intentar crear el inválido
         count_antes = Paciente.objects.count()
-        
+
         nuevo_user = User.objects.create_user(username="roberto2")
 
         paciente, errors = Paciente.new(
@@ -233,8 +230,8 @@ class PacienteModelTest(TestCase):
 
         # 2. Verificaciones
         self.assertIsNone(paciente)
-        self.assertTrue(len(errors) > 0) 
-        
+        self.assertTrue(len(errors) > 0)
+
         # 3. Verificación definitiva: la cantidad en la BD no cambió
         self.assertEqual(Paciente.objects.count(), count_antes)
 
@@ -244,106 +241,104 @@ class PacienteModelTest(TestCase):
         # 1. Usamos self.paciente (el que ya existe gracias al setUp)
         # 2. Llamamos a su método .update() con datos nuevos
         errors = self.paciente.update(
-            "Roberto Actualizado", 
-            "Rubidarte", 
-            "nuevo_email@test.com", 
-            "999999", 
-            "46087375", 
+            "Roberto Actualizado",
+            "Rubidarte",
+            "nuevo_email@test.com",
+            "999999",
+            "46087375",
             self.obra_social
         )
-        
+
         # 3. Verificaciones
         self.assertEqual(errors, []) # Que no haya errores
-        
+
         # 4. Refrescamos para ver los cambios en la base de datos
         self.paciente.refresh_from_db()
-        
+
         # 5. Confirmamos que los campos cambiaron
         self.assertEqual(self.paciente.nombre, "Roberto Actualizado")
         self.assertEqual(self.paciente.email, "nuevo_email@test.com")
 
-
-
-
     def test_update_con_datos_invalidos_no_modifica(self):
         # Guardamos el nombre original para comparar después
         nombre_original = self.paciente.nombre
-        
+
         # Intentamos actualizar con datos vacíos
         errors = self.paciente.update("", "", "email-invalido", "", "", None)
 
         # 1. Verificamos que el validador detectó errores
         self.assertTrue(len(errors) > 0)
-        
+
         # 2. Refrescamos para ver si algo cambió en la BD
         self.paciente.refresh_from_db()
-        
+
         # 3. Verificamos que el nombre sigue siendo el original
         # Esto prueba que el update no guardó datos inválidos
         self.assertEqual(self.paciente.nombre, nombre_original)
 
-
     def test_update_con_dni_de_otro_paciente_retorna_error(self):
         # 1. Preparar un usuario rival
         nuevo_user = User.objects.create_user(username="joaco")
-        
+
         # 2. Crear al paciente rival
         Paciente.new(
             nuevo_user, "joaco", "Rubidarte", "joaco@test.com", "654321", "12345678", self.obra_social
         )
 
-        # 3. Intentar actualizar nuestro paciente con el DNI del rival 
+        # 3. Intentar actualizar nuestro paciente con el DNI del rival
         errors = self.paciente.update(
-            "Juan", "Perez", "juan@perez.com", "123456", "12345678", self.obra_social 
+            "Juan", "Perez", "juan@perez.com", "123456", "12345678", self.obra_social
         )
 
-        # 4. Verificación 
+        # 4. Verificación
         self.assertTrue(len(errors) > 0)
+
 
 class AusenciaModelTest(TestCase):
 
-        def setUp(self):
-          self.especialidad = Especialidad.objects.create(nombre="Pediatría")
-          self.medico = Medico.objects.create(
-              nombre="Laura", apellido="Romero",
-              matricula="MP-9999", especialidad=self.especialidad
-          ) 
+    def setUp(self):
+        self.especialidad = Especialidad.objects.create(nombre="Pediatría")
+        self.medico = Medico.objects.create(
+            nombre="Laura", apellido="Romero",
+            matricula="MP-9999", especialidad=self.especialidad
+        )
 
-        def test_validate_fecha_fin_menor_a_inicio_retorna_error(self):
-          from datetime import date
-          errors = Ausencia.validate("Vacaciones", date(2025, 6, 10), date(2025, 6, 1), )
-          self.assertTrue(len(errors) > 0)
+    def test_validate_fecha_fin_menor_a_inicio_retorna_error(self):
+        from datetime import date
+        errors = Ausencia.validate("Vacaciones", date(2025, 6, 10), date(2025, 6, 1), )
+        self.assertTrue(len(errors) > 0)
 
     # --- new ---
 
-        def test_new_crea_ausencia_con_datos_validos(self):
-            ausencia, errors = Ausencia.new("Vacaciones", date(2025, 6, 1), date(2025, 6, 10), self.medico)
-            self.assertEqual(errors, [])
-            self.assertIsNotNone(ausencia)
-            self.assertTrue(Ausencia.objects.filter(motivo="Vacaciones").exists())
+    def test_new_crea_ausencia_con_datos_validos(self):
+        ausencia, errors = Ausencia.new("Vacaciones", date(2025, 6, 1), date(2025, 6, 10), self.medico)
+        self.assertEqual(errors, [])
+        self.assertIsNotNone(ausencia)
+        self.assertTrue(Ausencia.objects.filter(motivo="Vacaciones").exists())
 
-        def test_new_con_datos_invalidos_no_crea(self):
-            count_antes = Ausencia.objects.count()
-            ausencia, errors = Ausencia.new("", None, None, self.medico)
-            self.assertIsNone(ausencia)
-            self.assertTrue(len(errors) > 0)
-            self.assertEqual(Ausencia.objects.count(), count_antes)
+    def test_new_con_datos_invalidos_no_crea(self):
+        count_antes = Ausencia.objects.count()
+        ausencia, errors = Ausencia.new("", None, None, self.medico)
+        self.assertIsNone(ausencia)
+        self.assertTrue(len(errors) > 0)
+        self.assertEqual(Ausencia.objects.count(), count_antes)
 
-        # --- update ---
+    # --- update ---
 
-        def test_update_modifica_motivo_correctamente(self):
-            ausencia, _ = Ausencia.new("Vacaciones", date(2025, 6, 1), date(2025, 6, 10), self.medico)
-            errors = ausencia.update("Congreso médico", date(2025, 6, 1), date(2025, 6, 10))
-            self.assertEqual(errors, [])
-            ausencia.refresh_from_db()
-            self.assertEqual(ausencia.motivo, "Congreso médico")
+    def test_update_modifica_motivo_correctamente(self):
+        ausencia, _ = Ausencia.new("Vacaciones", date(2025, 6, 1), date(2025, 6, 10), self.medico)
+        errors = ausencia.update("Congreso médico", date(2025, 6, 1), date(2025, 6, 10))
+        self.assertEqual(errors, [])
+        ausencia.refresh_from_db()
+        self.assertEqual(ausencia.motivo, "Congreso médico")
 
-        def test_update_con_datos_invalidos_no_modifica(self):
-            ausencia, _ = Ausencia.new("Vacaciones", date(2025, 6, 1), date(2025, 6, 10), self.medico)
-            errors = ausencia.update("", None, None)
-            self.assertTrue(len(errors) > 0)
-            ausencia.refresh_from_db()
-            self.assertEqual(ausencia.motivo, "Vacaciones")
+    def test_update_con_datos_invalidos_no_modifica(self):
+        ausencia, _ = Ausencia.new("Vacaciones", date(2025, 6, 1), date(2025, 6, 10), self.medico)
+        errors = ausencia.update("", None, None)
+        self.assertTrue(len(errors) > 0)
+        ausencia.refresh_from_db()
+        self.assertEqual(ausencia.motivo, "Vacaciones")
+
 
 class TurnoModelTest(TestCase):
     """Pruebas para el modelo Turno."""
@@ -354,13 +349,13 @@ class TurnoModelTest(TestCase):
             username='testuser',
             password='testpass123'
         )
-        
+
         # crear especialidad
         self.especialidad = Especialidad.objects.create(
             nombre='Cardiologia',
             descripcion='Especialidad en corazon'
         )
-        
+
         # crear medico
         self.medico = Medico.objects.create(
             nombre='Juan',
@@ -368,14 +363,14 @@ class TurnoModelTest(TestCase):
             matricula='MP12345',
             especialidad=self.especialidad
         )
-        
+
         # crear obra social
         self.obra_social = ObraSocial.objects.create(
             nombre='OSDE',
             sitio_web='www.osde.com.ar',
             requiere_token=False
         )
-        
+
         # crear paciente
         self.paciente = Paciente.objects.create(
             usuario=self.user,
@@ -386,7 +381,7 @@ class TurnoModelTest(TestCase):
             dni='40123456',
             obra_social=self.obra_social
         )
-        
+
         # fecha para tests (futuro)
         self.fecha_futura = timezone.now() + timedelta(days=2)
 
@@ -454,7 +449,7 @@ class TurnoModelTest(TestCase):
             creado_por=self.user,
             observaciones='Paciente con fiebre'
         )
-        
+
         self.assertEqual(errors, [])
         self.assertIsNotNone(turno)
         self.assertEqual(turno.medico, self.medico)
@@ -473,7 +468,7 @@ class TurnoModelTest(TestCase):
             fecha_hora=self.fecha_futura,
             motivo=''
         )
-        
+
         self.assertIsNone(turno)
         self.assertTrue(len(errors) > 0)
         self.assertEqual(Turno.objects.count(), count_antes)
@@ -489,7 +484,7 @@ class TurnoModelTest(TestCase):
             motivo='Original',
             creado_por=self.user
         )
-        
+
         nueva_fecha = self.fecha_futura + timedelta(hours=2)
         errors = turno.update(
             medico=self.medico,
@@ -497,7 +492,7 @@ class TurnoModelTest(TestCase):
             fecha_hora=nueva_fecha,
             motivo='Modificado'
         )
-        
+
         self.assertEqual(errors, [])
         turno.refresh_from_db()
         self.assertEqual(turno.motivo, 'Modificado')
@@ -512,7 +507,7 @@ class TurnoModelTest(TestCase):
             motivo='Original',
             creado_por=self.user
         )
-        
+
         motivo_original = turno.motivo
         errors = turno.update(
             medico=None,
@@ -520,7 +515,7 @@ class TurnoModelTest(TestCase):
             fecha_hora=None,
             motivo=''
         )
-        
+
         self.assertTrue(len(errors) > 0)
         turno.refresh_from_db()
         self.assertEqual(turno.motivo, motivo_original)
@@ -536,7 +531,7 @@ class TurnoModelTest(TestCase):
             motivo='Consulta',
             creado_por=self.user
         )
-        
+
         turno.cancelar()
         turno.refresh_from_db()
         self.assertEqual(turno.estado, 'cancelado')
@@ -552,7 +547,7 @@ class TurnoModelTest(TestCase):
             motivo='Consulta',
             creado_por=self.user
         )
-        
+
         turno.aceptar()
         turno.refresh_from_db()
         self.assertEqual(turno.estado, 'confirmado')
@@ -568,12 +563,12 @@ class TurnoModelTest(TestCase):
             motivo='Consulta',
             creado_por=self.user
         )
-        
+
         self.assertEqual(turno.estadoDisponibilidad(), 'pendiente')
-        
+
         turno.aceptar()
         self.assertEqual(turno.estadoDisponibilidad(), 'confirmado')
-        
+
         turno.cancelar()
         self.assertEqual(turno.estadoDisponibilidad(), 'cancelado')
 
@@ -588,7 +583,7 @@ class TurnoModelTest(TestCase):
             motivo='Consulta',
             creado_por=self.user
         )
-        
+
         self.assertTrue(turno.esta_pendiente())
         turno.aceptar()
         self.assertFalse(turno.esta_pendiente())
@@ -602,7 +597,7 @@ class TurnoModelTest(TestCase):
             motivo='Consulta',
             creado_por=self.user
         )
-    
+
         self.assertFalse(turno.esta_confirmado())
         turno.aceptar()
         self.assertTrue(turno.esta_confirmado())
@@ -616,10 +611,11 @@ class TurnoModelTest(TestCase):
             motivo='Consulta',
             creado_por=self.user
         )
-        
+
         self.assertFalse(turno.esta_cancelado())
         turno.cancelar()
         self.assertTrue(turno.esta_cancelado())
+
 
 class ObraSocialModelTest(TestCase):
 

@@ -377,7 +377,7 @@ class Turno(models.Model):  # Define el modelo Turno para citas médicas.
     def validate(cls, medico, paciente, fecha_hora, motivo, estado=None, creado_por=None, observaciones="", instance=None):
         errors = []
         if not medico:
-            errors.append("El médico es obligatorio.")
+            errors.append("El medico es obligatorio.")
         if not paciente:
             errors.append("El paciente es obligatorio.")
         if not fecha_hora:
@@ -386,12 +386,16 @@ class Turno(models.Model):  # Define el modelo Turno para citas médicas.
             errors.append("El motivo es obligatorio.")
         # observaciones es opcional (blank=True)
         return errors
-    
+
     @classmethod
-    def new(cls, medico, paciente, fecha_hora, motivo, estado=None, creado_por=None, observaciones=""):  # Crea un turno nuevo.
-        errors = cls.validate(medico, paciente, fecha_hora, motivo, estado, creado_por, observaciones)  # Valida los campos.
-        if errors:  # Si hay problemas...
-            return None, errors  # ...retorna None y errores.
+    def new(cls, medico, paciente, fecha_hora, motivo, estado=None, creado_por=None, observaciones=""):
+        errors = cls.validate(medico, paciente, fecha_hora, motivo, estado, creado_por, observaciones)
+        if errors:
+            return None, errors
+        
+        # si estado es None, usar el default del modelo (pendiente)
+        if estado is None:
+            estado = cls._meta.get_field('estado').default
         
         turno = cls.objects.create(
             medico=medico,
@@ -402,15 +406,17 @@ class Turno(models.Model):  # Define el modelo Turno para citas médicas.
             creado_por=creado_por,
             observaciones=observaciones
         )
-        return turno, []  # Retorna el turno creado.
-    
-    #Update() → validar datos → actualizar instancia
-    # TU CÓDIGO ACTUAL (LÍNEAS 319-330):
+        return turno, []
+
     def update(self, medico, paciente, fecha_hora, motivo, estado=None, creado_por=None, observaciones=""):
+        # usar el estado actual si no se proporciona uno nuevo
+        if estado is None:
+            estado = self.estado
+
         errors = self.__class__.validate(medico, paciente, fecha_hora, motivo, estado, creado_por, observaciones)
         if errors:
             return errors
-    
+
         self.medico = medico
         self.paciente = paciente
         self.fecha_hora = fecha_hora
@@ -420,19 +426,33 @@ class Turno(models.Model):  # Define el modelo Turno para citas médicas.
         self.observaciones = observaciones
         self.save()
         return []
-        
+
     def cancelar(self):
         self.estado = 'cancelado'
         self.save()
-        
+
     def aceptar(self):
         self.estado = 'confirmado'
         self.save()
 
-# Responsabilidad: Este modelo representa una cita médica, valida sus datos esenciales, la crea, la actualiza y gestiona su estado de disponibilidad.
-        
+    def esta_pendiente(self):
+        """retorna true si el turno esta pendiente."""
+        return self.estado == 'pendiente'
+
+    def esta_confirmado(self):
+        """retorna true si el turno esta confirmado."""
+        return self.estado == 'confirmado'
+
+    def esta_cancelado(self):
+        """retorna true si el turno esta cancelado."""
+        return self.estado == 'cancelado'
+
+    def esta_finalizado(self):
+        """retorna true si el turno esta finalizado."""
+        return self.estado == 'finalizado'
+
     def estadoDisponibilidad(self):#Esta vigente?
-        """Retorna el estado del turno como 'Disponible' o 'Indisponible'."""
+        """retorna el estado del turno como string."""
         return self.estado;
 
 # TODO de intermedia/final:
@@ -441,10 +461,3 @@ class Turno(models.Model):  # Define el modelo Turno para citas médicas.
     # Misael: class Turno(models.Model): ...
     # Dario: class Ausencia(models.Model): ...
     # Compartido: class ObraSocial(models.Model): ...
-
-
-
-
-
-
-"#"  

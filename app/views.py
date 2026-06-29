@@ -461,11 +461,4 @@ class BuscarPacientesView(LoginRequiredMixin, View):
             'dni': p.dni
         } for p in pacientes]
         
-        return JsonResponse(data, safe=False)"#"  
-"#"  
-"#"  
-"#"  
-"#"  
-"#"  
-"#"  
-"#"  
+        return JsonResponse(data, safe=False)
