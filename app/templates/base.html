@@ -19,9 +19,13 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'app:lista_medicos' %}">Médicos</a>
           </li>
-          {% if perms.app.view_turno %}
           <li class="nav-item">
               <a class="nav-link" href="{% url 'app:lista_turnos' %}">Turnos</a>
+          </li>
+
+          {% if user.is_staff or user.paciente %}
+          <li class="nav-item">
+              <a class="nav-link" href="{% url 'app:seleccionar_especialidad' %}">Pedir Turno</a>
           </li>
           {% endif %}
 

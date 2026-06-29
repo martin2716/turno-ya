@@ -1,10 +1,20 @@
 from django.db import models
-from .especialidad import Especialidad  
-from .obra_social import ObraSocial    
+from django.contrib.auth.models import User
+from .especialidad import Especialidad
+from .obra_social import ObraSocial
 
 class Medico(models.Model):
     """Representa a un profesional médico disponible para turnos."""
 
+    # Vínculo opcional con un User para habilitar el rol médico (login,
+    # aceptar/rechazar sus turnos). Nullable: no todo médico tiene usuario.
+    usuario = models.OneToOneField(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="medico",
+    )
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
     matricula = models.CharField(max_length=20, unique=True)
@@ -57,7 +67,7 @@ class Medico(models.Model):
         return errors
 
     @classmethod
-    def new(cls, nombre, apellido, matricula, especialidad,obras_sociales=None):# <--- Agregado opcional
+    def new(cls, nombre, apellido, matricula, especialidad, obras_sociales=None, usuario=None):
         """
         Crea y persiste un nuevo médico si los datos son válidos.
         Retorna (instancia, errors). Si hay errores, instancia es None.
@@ -71,6 +81,7 @@ class Medico(models.Model):
             apellido=apellido.strip(),
             matricula=matricula.strip(),
             especialidad=especialidad,
+            usuario=usuario,
         )
         # --- NUEVA LÓGICA ---
         if obras_sociales:
@@ -78,7 +89,7 @@ class Medico(models.Model):
         # --------------------
         return medico, []
 
-    def update(self, nombre, apellido, matricula, especialidad, obras_sociales=None):# <--- Agregado opcional
+    def update(self, nombre, apellido, matricula, especialidad, obras_sociales=None, usuario=None):
         """
         Actualiza los datos del médico si los datos son válidos.
         Retorna una lista de errores. Si está vacía, la actualización fue exitosa.
@@ -91,6 +102,8 @@ class Medico(models.Model):
         self.apellido = apellido.strip()
         self.matricula = matricula.strip()
         self.especialidad = especialidad
+        if usuario is not None:
+            self.usuario = usuario
         # --- NUEVA LÓGICA ---
         if obras_sociales is not None:
             self.obras_sociales.set(obras_sociales)

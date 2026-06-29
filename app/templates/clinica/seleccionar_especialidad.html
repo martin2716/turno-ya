@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Seleccionar Especialidad{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Seleccionar Especialidad</h2>
+            <p class="text-muted">Elegí una especialidad para ver los médicos disponibles.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        {% if especialidades %}
+            {% for especialidad in especialidades %}
+                <div class="col-md-4 col-lg-3 mb-3">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">{{ especialidad.nombre }}</h5>
+                            <p class="card-text text-muted small">{{ especialidad.descripcion|truncatechars:60 }}</p>
+                            <a href="{% url 'app:medicos_disponibles' especialidad.id %}" class="btn btn-primary btn-sm">
+                                Ver médicos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    No hay especialidades disponibles en este momento.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12">
+            <a href="{% url 'app:home' %}" class="btn btn-secondary">Volver al inicio</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,75 +1,136 @@
 from django.db import models
+from django.contrib.auth.models import User
 from .medico import Medico
+from .paciente import Paciente
 
 
 class Turno(models.Model):
     """Representa un turno médico agendado."""
 
+    PENDIENTE = "pendiente"
+    CONFIRMADO = "confirmado"
+    CANCELADO = "cancelado"
+    FINALIZADO = "finalizado"
+    ESTADOS = [
+        (PENDIENTE, "Pendiente"),
+        (CONFIRMADO, "Confirmado"),
+        (CANCELADO, "Cancelado"),
+        (FINALIZADO, "Finalizado"),
+    ]
+
     medico = models.ForeignKey(Medico, on_delete=models.CASCADE)
-    paciente_nombre = models.CharField(max_length=100)
-    paciente_apellido = models.CharField(max_length=100)
-    fecha = models.DateTimeField()
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
+    fecha_hora = models.DateTimeField()
+    estado = models.CharField(max_length=20, choices=ESTADOS, default=PENDIENTE)
+    motivo = models.TextField()
     observaciones = models.TextField(blank=True)
-    disponibilidad = models.BooleanField(default=True)
+    creado_por = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="turnos_creados",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["fecha"]
+        ordering = ["fecha_hora"]
 
     def __str__(self):
-        return f"Turno con {self.medico} el {self.fecha.strftime('%Y-%m-%d %H:%M')}"
+        return (
+            f"Turno de {self.paciente} con {self.medico} "
+            f"el {self.fecha_hora:%Y-%m-%d %H:%M}"
+        )
 
     @classmethod
-    def validate(cls, medico, paciente_nombre, paciente_apellido, fecha, disponibilidad, observaciones):
+    def validate(cls, medico, paciente, fecha_hora, motivo,
+                 estado=PENDIENTE, observaciones="", instance=None):
         errors = []
+
         if not medico:
             errors.append("El médico es obligatorio.")
-        if not paciente_nombre:
-            errors.append("El nombre del paciente es obligatorio.")
-        if not paciente_apellido:
-            errors.append("El apellido del paciente es obligatorio.")
-        if not fecha:
-            errors.append("La fecha es obligatoria.")
-        if not observaciones:
-            errors.append("Las observaciones son obligatorias.")
+        if not paciente:
+            errors.append("El paciente es obligatorio.")
+        if not fecha_hora:
+            errors.append("La fecha y hora son obligatorias.")
+        if not motivo or not motivo.strip():
+            errors.append("El motivo es obligatorio.")
+        if estado not in dict(cls.ESTADOS):
+            errors.append("El estado del turno no es válido.")
+
+        # Defensa en profundidad: no permitir dos turnos activos del mismo
+        # médico en el mismo horario (un turno cancelado libera el espacio).
+        if medico and fecha_hora:
+            query = cls.objects.filter(
+                medico=medico, fecha_hora=fecha_hora
+            ).exclude(estado=cls.CANCELADO)
+            if instance:
+                query = query.exclude(pk=instance.pk)
+            if query.exists():
+                errors.append("Ya existe un turno para ese médico en ese horario.")
+
         return errors
 
     @classmethod
-    def new(cls, medico, paciente_nombre, paciente_apellido, fecha, disponibilidad, observaciones):
-        errors = cls.validate(medico, paciente_nombre, paciente_apellido, fecha, disponibilidad, observaciones)
+    def new(cls, medico, paciente, fecha_hora, motivo,
+            estado=PENDIENTE, observaciones="", creado_por=None):
+        errors = cls.validate(medico, paciente, fecha_hora, motivo, estado, observaciones)
         if errors:
             return None, errors
 
         turno = cls.objects.create(
             medico=medico,
-            paciente_nombre=paciente_nombre,
-            paciente_apellido=paciente_apellido,
-            fecha=fecha,
-            disponibilidad=disponibilidad,
-            observaciones=observaciones
+            paciente=paciente,
+            fecha_hora=fecha_hora,
+            estado=estado,
+            motivo=motivo.strip(),
+            observaciones=(observaciones or "").strip(),
+            creado_por=creado_por,
         )
         return turno, []
 
-    def update(self, medico, paciente_nombre, paciente_apellido, fecha, disponibilidad, observaciones):
-        errors = self.__class__.validate(medico, paciente_nombre, paciente_apellido, fecha, disponibilidad, observaciones)
+    def update(self, medico, paciente, fecha_hora, motivo,
+               estado=None, observaciones=None):
+        estado = estado if estado is not None else self.estado
+        observaciones = observaciones if observaciones is not None else self.observaciones
+
+        errors = self.__class__.validate(
+            medico, paciente, fecha_hora, motivo, estado, observaciones, instance=self
+        )
         if errors:
             return errors
 
         self.medico = medico
-        self.paciente_nombre = paciente_nombre
-        self.paciente_apellido = paciente_apellido
-        self.fecha = fecha
-        self.disponibilidad = disponibilidad
-        self.observaciones = observaciones
+        self.paciente = paciente
+        self.fecha_hora = fecha_hora
+        self.motivo = motivo.strip()
+        self.estado = estado
+        self.observaciones = (observaciones or "").strip()
         self.save()
         return []
 
-    def cancelar(self):
-        self.disponibilidad = False
-        self.save()
+    # --- Transiciones de estado (usadas por las vistas) ---
 
     def aceptar(self):
-        self.disponibilidad = True
+        """El médico confirma un turno pendiente."""
+        self.estado = self.CONFIRMADO
         self.save()
 
-    def estadoDisponibilidad(self):
-        return self.disponibilidad
+    def rechazar(self):
+        """El médico rechaza un turno pendiente.
+
+        Reutiliza la transición a 'cancelado' (no hay estado 'rechazado').
+        """
+        self.estado = self.CANCELADO
+        self.save()
+
+    def cancelar(self):
+        """El paciente cancela un turno propio."""
+        self.estado = self.CANCELADO
+        self.save()
+
+    def finalizar(self):
+        """Marca el turno como atendido/finalizado."""
+        self.estado = self.FINALIZADO
+        self.save()
