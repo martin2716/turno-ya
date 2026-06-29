@@ -13,8 +13,31 @@ urlpatterns = [
     path("pacientes/", views.ListaPacientesView.as_view(), name="lista_pacientes"),
     path("medicos/<int:pk>/", views.DetalleMedicoView.as_view(), name="detalle_medico"),
     path("turnos/", views.ListaTurnosView.as_view(), name="lista_turnos"),
-    # path("turnos/nuevo/", views.NuevoTurnoView.as_view(), name="nuevo_turno"),
-    # path("turnos/<int:pk>/cancelar/", views.CancelarTurnoView.as_view(), name="cancelar_turno"),
     path("ausencias/", views.ListaAusenciasView.as_view(), name="lista_ausencias"),
     path("ausencias/nueva/", views.NuevaAusenciaView.as_view(), name="nueva_ausencia"),
+
+    # --- Flujo de pedir turno ---
+    path(
+        "especialidades/",
+        views.SeleccionarEspecialidadView.as_view(),
+        name="seleccionar_especialidad",
+    ),
+    path(
+        "especialidad/<int:especialidad_id>/medicos/",
+        views.MedicosDisponiblesView.as_view(),
+        name="medicos_disponibles",
+    ),
+    path(
+        "medico/<int:medico_id>/turnos/",
+        views.TurnosDisponiblesView.as_view(),
+        name="turnos_disponibles",
+    ),
+    path(
+        "turno/confirmar/<int:medico_id>/<str:fecha>/<str:hora>/",
+        views.ConfirmarTurnoView.as_view(),
+        name="confirmar_turno",
+    ),
+    path("turnos/<int:pk>/aceptar/", views.AceptarTurnoView.as_view(), name="aceptar_turno"),
+    path("turnos/<int:pk>/rechazar/", views.RechazarTurnoView.as_view(), name="rechazar_turno"),
+    path("turnos/<int:pk>/cancelar/", views.CancelarTurnoView.as_view(), name="cancelar_turno"),
 ]

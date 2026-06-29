@@ -36,7 +36,13 @@
     <tbody>
       {% for medico in medicos %}
       <tr>
-        <td><a href="{% url 'app:detalle_medico' medico.pk %}">{{ medico }}</a></td>
+        <td>
+          {% if user.is_authenticated %}
+            <a href="{% url 'app:detalle_medico' medico.pk %}">{{ medico }}</a>
+          {% else %}
+            {{ medico }}
+          {% endif %}
+        </td>
         <td><code>{{ medico.matricula }}</code></td>
         <td>{{ medico.especialidad }}</td>
       </tr>

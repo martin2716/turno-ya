@@ -1,7 +1,15 @@
 """Configuración del admin para los modelos principales de la app."""
 
 from django.contrib import admin
-from .models import Especialidad, Medico, ObraSocial, Paciente, Turno, Ausencia
+from .models import (
+    Especialidad,
+    Medico,
+    FranjaHoraria,
+    ObraSocial,
+    Paciente,
+    Turno,
+    Ausencia,
+)
 
 
 @admin.register(Especialidad)
@@ -12,9 +20,16 @@ class EspecialidadAdmin(admin.ModelAdmin):
 
 @admin.register(Medico)
 class MedicoAdmin(admin.ModelAdmin):
-    list_display = ("apellido", "nombre", "matricula", "especialidad")
+    list_display = ("apellido", "nombre", "matricula", "especialidad", "usuario")
     list_filter = ("especialidad",)
     search_fields = ("apellido", "nombre", "matricula")
+
+
+@admin.register(FranjaHoraria)
+class FranjaHorariaAdmin(admin.ModelAdmin):
+    list_display = ("medico", "dia_semana", "hora_inicio", "hora_fin")
+    list_filter = ("dia_semana", "medico")
+    search_fields = ("medico__apellido", "medico__nombre")
 
 
 @admin.register(ObraSocial)
@@ -34,20 +49,20 @@ class PacienteAdmin(admin.ModelAdmin):
 @admin.register(Turno)
 class TurnoAdmin(admin.ModelAdmin):
     list_display = (
-        "fecha",
+        "fecha_hora",
         "medico",
-        "paciente_apellido",
-        "paciente_nombre",
-        "disponibilidad",
+        "paciente",
+        "estado",
+        "motivo",
     )
-    list_filter = ("disponibilidad", "medico")
+    list_filter = ("estado", "medico")
     search_fields = (
-        "paciente_apellido",
-        "paciente_nombre",
+        "paciente__apellido",
+        "paciente__nombre",
         "medico__apellido",
         "medico__nombre",
     )
-    date_hierarchy = "fecha"
+    date_hierarchy = "fecha_hora"
 
 
 @admin.register(Ausencia)

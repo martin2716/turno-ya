@@ -2,11 +2,12 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
-from datetime import date, timedelta
+from datetime import date, time, timedelta
 
 # Importamos cada modelo de su archivo correspondiente
 from app.models.especialidad import Especialidad
 from app.models.medico import Medico
+from app.models.franja_horaria import FranjaHoraria
 from app.models.obra_social import ObraSocial
 from app.models.paciente import Paciente
 from app.models.turno import Turno
@@ -337,29 +338,54 @@ class TurnoModelTest(TestCase):
               nombre="Laura", apellido="Romero",
               matricula="MP-9999", especialidad=self.especialidad
           )
+          self.obra_social = ObraSocial.objects.create(nombre="IOMA")
+          self.user = User.objects.create_user(username="pac_turno", password="1234")
+          self.paciente, _ = Paciente.new(
+              usuario=self.user,
+              nombre="Misael",
+              apellido="Casagrande",
+              email="misael@casagrande.com",
+              telefono="123456",
+              dni="22222222",
+              obra_social=self.obra_social,
+          )
           self.fecha_valida = timezone.now() + timedelta(days=5)
 
       # --- validate ---
 
       def test_validate_datos_correctos_retorna_lista_vacia(self):
-          errors = Turno.validate(self.medico, "Misael", "Casagrande", self.fecha_valida, True, "Consulta")
+          errors = Turno.validate(self.medico, self.paciente, self.fecha_valida, "Consulta")
           self.assertEqual(errors, [])
 
       def test_validate_sin_medico_retorna_error(self):
-          errors = Turno.validate(None, "Misael", "Casagrande", self.fecha_valida, True, "Consulta")
+          errors = Turno.validate(None, self.paciente, self.fecha_valida, "Consulta")
+          self.assertTrue(len(errors) > 0)
+
+      def test_validate_sin_paciente_retorna_error(self):
+          errors = Turno.validate(self.medico, None, self.fecha_valida, "Consulta")
+          self.assertTrue(len(errors) > 0)
+
+      def test_validate_sin_motivo_retorna_error(self):
+          errors = Turno.validate(self.medico, self.paciente, self.fecha_valida, "")
+          self.assertTrue(len(errors) > 0)
+
+      def test_validate_turno_duplicado_retorna_error(self):
+          Turno.new(self.medico, self.paciente, self.fecha_valida, "Consulta")
+          errors = Turno.validate(self.medico, self.paciente, self.fecha_valida, "Otra")
           self.assertTrue(len(errors) > 0)
 
       # --- new ---
 
       def test_new_crea_turno_con_datos_validos(self):
-          turno, errors = Turno.new(self.medico, "Misael", "Casagrande", self.fecha_valida, True, "Consulta")
+          turno, errors = Turno.new(self.medico, self.paciente, self.fecha_valida, "Consulta")
           self.assertEqual(errors, [])
           self.assertIsNotNone(turno)
-          self.assertTrue(Turno.objects.filter(paciente_apellido="Casagrande").exists())
+          self.assertEqual(turno.estado, Turno.PENDIENTE)
+          self.assertTrue(Turno.objects.filter(paciente=self.paciente).exists())
 
       def test_new_con_datos_invalidos_no_crea(self):
           count_antes = Turno.objects.count()
-          turno, errors = Turno.new(None, "", "", None, None, "")
+          turno, errors = Turno.new(None, None, None, "")
           self.assertIsNone(turno)
           self.assertTrue(len(errors) > 0)
           self.assertEqual(Turno.objects.count(), count_antes)
@@ -367,37 +393,102 @@ class TurnoModelTest(TestCase):
       # --- update ---
 
       def test_update_modifica_observaciones_correctamente(self):
-          turno, _ = Turno.new(self.medico, "Misael", "Casagrande", self.fecha_valida, True, "Consulta")
+          turno, _ = Turno.new(self.medico, self.paciente, self.fecha_valida, "Consulta")
           nueva_fecha = timezone.now() + timedelta(days=10)
-          errors = turno.update(self.medico, "Misael", "Casagrande", nueva_fecha, True, "Nueva observación")
+          errors = turno.update(
+              self.medico, self.paciente, nueva_fecha, "Consulta",
+              observaciones="Nueva observación",
+          )
           self.assertEqual(errors, [])
           turno.refresh_from_db()
           self.assertEqual(turno.observaciones, "Nueva observación")
 
-      # --- cancelar ---
+      # --- transiciones de estado ---
 
-      def test_cancelar_cambia_disponibilidad_a_false(self):
-          turno, _ = Turno.new(self.medico, "Misael", "Casagrande", self.fecha_valida, True, "Consulta")
-          turno.cancelar()
-          turno.refresh_from_db()
-          self.assertFalse(turno.disponibilidad)
-
-      # --- aceptar ---
-
-      def test_aceptar_cambia_disponibilidad_a_true(self):
-          turno, _ = Turno.new(self.medico, "Misael", "Casagrande", self.fecha_valida, False, "Consulta")
+      def test_aceptar_cambia_estado_a_confirmado(self):
+          turno, _ = Turno.new(self.medico, self.paciente, self.fecha_valida, "Consulta")
           turno.aceptar()
           turno.refresh_from_db()
-          self.assertTrue(turno.disponibilidad)
+          self.assertEqual(turno.estado, Turno.CONFIRMADO)
 
-      # --- estadoDisponibilidad ---
+      def test_rechazar_cambia_estado_a_cancelado(self):
+          turno, _ = Turno.new(self.medico, self.paciente, self.fecha_valida, "Consulta")
+          turno.rechazar()
+          turno.refresh_from_db()
+          self.assertEqual(turno.estado, Turno.CANCELADO)
 
-      def test_estado_disponibilidad_refleja_cancelacion(self):
-          turno, _ = Turno.new(self.medico, "Misael", "Casagrande", self.fecha_valida, True, "Consulta")
-          self.assertTrue(turno.estadoDisponibilidad())
+      def test_cancelar_cambia_estado_a_cancelado(self):
+          turno, _ = Turno.new(self.medico, self.paciente, self.fecha_valida, "Consulta")
           turno.cancelar()
           turno.refresh_from_db()
-          self.assertFalse(turno.estadoDisponibilidad())
+          self.assertEqual(turno.estado, Turno.CANCELADO)
+
+      def test_finalizar_cambia_estado_a_finalizado(self):
+          turno, _ = Turno.new(self.medico, self.paciente, self.fecha_valida, "Consulta")
+          turno.finalizar()
+          turno.refresh_from_db()
+          self.assertEqual(turno.estado, Turno.FINALIZADO)
+
+
+class FranjaHorariaModelTest(TestCase):
+    """Verifica validaciones y métodos de FranjaHoraria."""
+
+    def setUp(self):
+        self.especialidad = Especialidad.objects.create(nombre="Clínica")
+        self.medico = Medico.objects.create(
+            nombre="Ana", apellido="García",
+            matricula="MP-7777", especialidad=self.especialidad,
+        )
+
+    def test_validate_datos_correctos_retorna_lista_vacia(self):
+        errors = FranjaHoraria.validate(
+            self.medico, FranjaHoraria.LUNES, time(9, 0), time(17, 0)
+        )
+        self.assertEqual(errors, [])
+
+    def test_validate_sin_medico_retorna_error(self):
+        errors = FranjaHoraria.validate(
+            None, FranjaHoraria.LUNES, time(9, 0), time(17, 0)
+        )
+        self.assertTrue(len(errors) > 0)
+
+    def test_validate_hora_fin_menor_o_igual_a_inicio_retorna_error(self):
+        errors = FranjaHoraria.validate(
+            self.medico, FranjaHoraria.LUNES, time(17, 0), time(9, 0)
+        )
+        self.assertTrue(len(errors) > 0)
+
+    def test_validate_dia_invalido_retorna_error(self):
+        errors = FranjaHoraria.validate(self.medico, 99, time(9, 0), time(17, 0))
+        self.assertTrue(len(errors) > 0)
+
+    def test_new_crea_franja_con_datos_validos(self):
+        franja, errors = FranjaHoraria.new(
+            self.medico, FranjaHoraria.MARTES, time(8, 0), time(12, 0)
+        )
+        self.assertEqual(errors, [])
+        self.assertIsNotNone(franja)
+        self.assertTrue(self.medico.franjas.filter(dia_semana=FranjaHoraria.MARTES).exists())
+
+    def test_new_con_datos_invalidos_no_crea(self):
+        count_antes = FranjaHoraria.objects.count()
+        franja, errors = FranjaHoraria.new(self.medico, FranjaHoraria.LUNES, time(17, 0), time(9, 0))
+        self.assertIsNone(franja)
+        self.assertTrue(len(errors) > 0)
+        self.assertEqual(FranjaHoraria.objects.count(), count_antes)
+
+    def test_update_modifica_horario_correctamente(self):
+        franja, _ = FranjaHoraria.new(
+            self.medico, FranjaHoraria.MIERCOLES, time(9, 0), time(13, 0)
+        )
+        errors = franja.update(
+            self.medico, FranjaHoraria.MIERCOLES, time(14, 0), time(18, 0)
+        )
+        self.assertEqual(errors, [])
+        franja.refresh_from_db()
+        self.assertEqual(franja.hora_inicio, time(14, 0))
+        self.assertEqual(franja.hora_fin, time(18, 0))
+
 
 class ObraSocialModelTest(TestCase):
     """Verifica comportamiento de ObraSocial."""
