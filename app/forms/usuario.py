@@ -8,16 +8,17 @@ from app.models import ObraSocial, Paciente
 
 
 class RegistroPacienteForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    first_name = forms.CharField(max_length=150, required=True, label="Nombre")
-    last_name = forms.CharField(max_length=150, required=True, label="Apellido")
-    telefono = forms.CharField(max_length=20, label="Teléfono")
-    dni = forms.CharField(max_length=20, label="DNI")
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={"class": "form-control"}))
+    first_name = forms.CharField(max_length=150, required=True, label="Nombre", widget=forms.TextInput(attrs={"class": "form-control"}))
+    last_name = forms.CharField(max_length=150, required=True, label="Apellido", widget=forms.TextInput(attrs={"class": "form-control"}))
+    telefono = forms.CharField(max_length=20, label="Teléfono", widget=forms.TextInput(attrs={"class": "form-control"}))
+    dni = forms.CharField(max_length=20, label="DNI", widget=forms.TextInput(attrs={"class": "form-control"}))
     obra_social = forms.ModelChoiceField(
         queryset=ObraSocial.objects.order_by("nombre"),
         required=True,
         empty_label="-- Seleccioná una obra social --",
         label="Obra social",
+        widget=forms.Select(attrs={"class": "form-select"}),
     )
 
     class Meta(UserCreationForm.Meta):
@@ -33,6 +34,12 @@ class RegistroPacienteForm(UserCreationForm):
             "dni",
             "obra_social",
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].widget.attrs.update({"class": "form-control"})
+        self.fields["password1"].widget.attrs.update({"class": "form-control"})
+        self.fields["password2"].widget.attrs.update({"class": "form-control"})
 
     def clean_email(self):
         email = self.cleaned_data["email"].strip().lower()
@@ -84,15 +91,16 @@ class RegistroPacienteForm(UserCreationForm):
 
 
 class PerfilUsuarioForm(forms.Form):
-    first_name = forms.CharField(max_length=150, label="Nombre")
-    last_name = forms.CharField(max_length=150, label="Apellido")
-    email = forms.EmailField(label="Email")
-    telefono = forms.CharField(max_length=20)
-    dni = forms.CharField(max_length=20)
+    first_name = forms.CharField(max_length=150, label="Nombre", widget=forms.TextInput(attrs={"class": "form-control"}))
+    last_name = forms.CharField(max_length=150, label="Apellido", widget=forms.TextInput(attrs={"class": "form-control"}))
+    email = forms.EmailField(label="Email", widget=forms.EmailInput(attrs={"class": "form-control"}))
+    telefono = forms.CharField(max_length=20, widget=forms.TextInput(attrs={"class": "form-control"}))
+    dni = forms.CharField(max_length=20, widget=forms.TextInput(attrs={"class": "form-control"}))
     obra_social = forms.ModelChoiceField(
         queryset=ObraSocial.objects.order_by("nombre"),
         required=True,
         empty_label="-- Seleccioná una obra social --",
+        widget=forms.Select(attrs={"class": "form-select"}),
     )
 
     def __init__(self, *args, user=None, paciente=None, **kwargs):
