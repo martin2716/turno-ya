@@ -37,15 +37,11 @@
             </li>
           {% endif %}
 
+          {% if not user.is_staff and user.paciente %}
           <li class="nav-item">
-              {% if not user.is_staff %}
-                {% if user.paciente %}
-                  <a class="nav-link" href="{% url 'app:editar_perfil' %}">Mi Perfil</a>
-                {% else %}
-                  <a class="nav-link" href="{% url 'app:crear_perfil' %}">Completar Perfil</a>
-                {% endif %}
-              {% endif %}
-            </li>
+            <a class="nav-link" href="{% url 'app:perfil_usuario' %}">Mi Perfil</a>
+          </li>
+          {% endif %}
 
           <li class="nav-item">
             <span class="nav-link disabled text-white">Hola {{ user.username }} </span>
