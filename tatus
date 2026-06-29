@@ -1,0 +1,54 @@
+[33mcc636e4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m chore: guardar cambios pendientes finales
+[33mb88c64c[m test: actualizar tests de Turno al nuevo modelo y agregar tests para todos los modelos
+[33maeb61bc[m refactor: mejorar legibilidad en forms
+[33m7853b28[m feat: agregar comentarios en urls
+[33m655a403[m style: ordenar imports en models
+[33m35d119e[m docs: agregar comentarios en modelos
+[33mc0b7830[m chore: limpiar archivo basura
+[33m7955e29[m feat(forms): agregar BusquedaTurnosForm con validacion personalizada
+[33m2038290[m fix(turno): corregir aceptar() para usar string confirmado
+[33m254b8d5[m fix(turno): corregir indentacion en metodo validate
+[33m6441a9b[m feat(views): ajustar ListaTurnosView con filtros por rol de usuario
+[33mf6d8179[m feat(views): implementar AceptarTurnoView para medicos
+[33mcfd88f5[m feat(views): implementar CancelarTurnoView con cambio de estado
+[33ma245ef7[m feat(views): implementar NuevoTurnoView
+[33m5733fe9[m feat(views): implementar NuevoTurnoView
+[33m36469ee[m feat(forms): crear forms.py y TurnoForm con validaciones personalizadas
+[33mc0ab07c[m feat(turno): rediseñar modelo Turno, Paciente y estado
+[33mdf78ccb[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge branch 'main' of https://github.com/martin2716/turno-ya
+[33m3effd70[m feat: implementar vista de lista de pacientes y actualizar navegación
+[33me63bc3a[m feat: añadida vista de la lista de turnos ya asignados
+[33m243b733[m feat: añadidos nuevos fixtures y arreglado el de medicos
+[33mee2841f[m feat: añadidos test faltantantes para Asucencia y ObraSocial, junto a correcciones en TurnoModelTest
+[33m370ae9d[m feat: añadido test basico para Ausencia
+[33ma57415d[m feat: añadidos metodos de negocio faltante en Ausencia
+[33ma9dd95e[m fix: correccion error de validacion
+[33m7499518[m feat: añadida ultima version de migrations
+[33mc9f1988[m fix: corregido falta de imports y correccion en orden de creacion de Clases, Ausencia debia estar despues de Medico
+[33m98bcc69[m Merge pull request #7 from martin2716/feature/turno-model-base
+[33mf21e8ec[m Merge branch 'main' into feature/turno-model-base
+[33mb70a9a0[m Merge pull request #6 from martin2716/feature/especialidad-home
+[33m1ac653c[m Merge branch 'main' into feature/especialidad-home
+[33m5a826c9[m[33m ([m[1;31morigin/feature/turno-model-base[m[33m, [m[1;32mfeature/turno-model-base[m[33m)[m feat: agregar tests completos para modelo Turno con validate, new, update y metodos de negocio
+[33m0900ca9[m Merge pull request #4 from martin2716/feat/implementacion-tests
+[33m4b87d59[m Merge pull request #1 from martin2716/docs/guia-setup
+[33m6de9def[m Merge pull request #5 from martin2716/especialidad
+[33mde8f433[m feat: añadida clase Ausencia
+[33mfa1d445[m feat: agrega especialidad, admin y estadisticas del home
+[33m0b8d5c4[m feat: agregar tests unitarios para modelo Paciente
+[33md525b42[m feat: agregar modelo Turno con validate, new, update y tests
+[33m39163cf[m feat(models): implementar validate, new, update y logica de negocio en Paciente (puede_solicitar_turno)
+[33mc2b77ac[m feat: definir modelos Paciente y ObraSocial iniciales
+[33m5943404[m docs: agregar archivo SETUP.md
+[33m860e2f9[m agrego la guia interna del grupo
+[33m49ecbc2[m documento criterios comunes para el equipo
+[33m96dbdd7[m dejo lista la estructura compartida del proyecto
+[33m5509b37[m armo una base comun para autenticacion
+[33ma9f5a88[m fix: arregla tests
+[33m8d5bec6[m chore: prompt contextual
+[33m910561a[m feat: agrega app con modelo de medico y dos vistas basicas
+[33m4df7192[m chore: estructura basica de proyecto django
+[33m900330d[m chore: agrega ignore
+[33m8d511de[m chore: agrega dependencias
+[33m26a8a79[m chore: completa Readme
+[33m6e842a6[m Initial commit

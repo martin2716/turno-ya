@@ -62,6 +62,15 @@ class Medico(models.Model):  # Define el modelo Medico para los profesionales m�
         on_delete=models.PROTECT,  # Protege la especialidad si se borra.
         related_name="medicos",
     )
+        # NUEVOS CAMPOS DE RANGO HORARIO
+    hora_inicio = models.TimeField(
+        default='09:00',
+        help_text="Hora de inicio de la jornada laboral (formato HH:MM)"
+    )
+    hora_fin = models.TimeField(
+        default='17:00',
+        help_text="Hora de fin de la jornada laboral (formato HH:MM)"
+    )
 
     class Meta:
         ordering = ["apellido", "nombre"]  # Ordena médicos por apellido y nombre.
@@ -438,3 +447,4 @@ class Turno(models.Model):  # Define el modelo Turno para citas médicas.
 
 
 
+"#"  
