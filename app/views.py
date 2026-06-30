@@ -395,35 +395,40 @@ class SeleccionarEspecialidadView(PerfilPacienteRequiredMixin, ListView):
 
 
 class MedicosDisponiblesView(PerfilPacienteRequiredMixin, ListView):
-    """Paso 2: médicos de la especialidad con horarios libres en una fecha."""
+    """Paso 2: médicos de la especialidad con al menos un turno libre en 15 días."""
 
     model = Medico
     template_name = "clinica/medicos_disponibles.html"
     context_object_name = "medicos"
 
-    def _fecha(self):
-        fecha_str = self.request.GET.get("fecha")
-        if fecha_str:
-            try:
-                return datetime.strptime(fecha_str, "%Y-%m-%d").date()
-            except ValueError:
-                pass
-        return timezone.localdate()
-
     def get_queryset(self):
         especialidad_id = self.kwargs.get("especialidad_id")
         if not especialidad_id:
             return Medico.objects.none()
-        fecha = self._fecha()
+        hoy = timezone.localdate()
+        ahora = timezone.now()
         medicos = Medico.objects.filter(especialidad_id=especialidad_id)
-        return [m for m in medicos if slots_libres_de_medico(m, fecha)]
+        disponibles = []
+        for medico in medicos:
+            tiene_disponibilidad = False
+            for i in range(DIAS_CALENDARIO + 1):
+                fecha = hoy + timedelta(days=i)
+                slots = slots_libres_de_medico(medico, fecha)
+                if fecha == hoy:
+                    slots = [s for s in slots if s > ahora]
+                if slots:
+                    tiene_disponibilidad = True
+                    break
+            if tiene_disponibilidad:
+                disponibles.append(medico)
+        return disponibles
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["especialidad"] = get_object_or_404(
             Especialidad, id=self.kwargs.get("especialidad_id")
         )
-        context["fecha"] = self._fecha().strftime("%Y-%m-%d")
+        context["dias_calendario"] = DIAS_CALENDARIO
         return context
 
 
