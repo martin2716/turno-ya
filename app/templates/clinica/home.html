@@ -46,7 +46,7 @@
           <h3 class="h5">{{ paciente_inicio.nombre|default:user.first_name }} {{ paciente_inicio.apellido|default:user.last_name }}</h3>
           <p class="mb-4 text-muted">Mantené tus datos actualizados y revisá tus turnos desde el sistema.</p>
           <div class="d-grid gap-2 d-sm-flex">
-            <a href="{% url 'app:editar_perfil' %}" class="btn btn-success">Mi perfil</a>
+            <a href="{% url 'app:perfil_usuario' %}" class="btn btn-success">Mi perfil</a>
             <a href="{% url 'app:lista_turnos' %}" class="btn btn-outline-success">Mis turnos</a>
           </div>
         </div>
