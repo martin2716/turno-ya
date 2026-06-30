@@ -1,0 +1,71 @@
+:root {
+  --primary: #198754;
+  --primary-fg: #ffffff;
+  --header-bg: #198754;
+  --header-color: #ffffff;
+  --accent: #146c43;
+  --link-fg: #146c43;
+  --link-hover-color: #0f5132;
+}
+
+#header {
+  background: linear-gradient(90deg, #198754 0%, #157347 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+#header a:link,
+#header a:visited {
+  color: #ffffff;
+}
+
+#site-name a {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+div.breadcrumbs {
+  background: #e9f7ef;
+  color: #146c43;
+  border-bottom: 1px solid #cfe8d8;
+}
+
+div.breadcrumbs a {
+  color: #146c43;
+}
+
+.module h2,
+.module caption,
+.inline-group h2 {
+  background: #198754;
+}
+
+button,
+input[type="submit"],
+input[type="button"],
+.button,
+a.button {
+  background: #198754;
+}
+
+button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+.button:hover,
+a.button:hover {
+  background: #157347;
+}
+
+.submit-row input.default {
+  background: #198754;
+}
+
+.submit-row input.default:hover {
+  background: #157347;
+}
+
+#content-related .module,
+.module {
+  border-radius: 10px;
+  overflow: hidden;
+}
