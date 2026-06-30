@@ -2,6 +2,8 @@
 
 > Relevado el 2026-06-29. Comparación entre `main` y la rama `mi-cambios-mergeados`.
 
+> **Nota:** este documento debe leerse como un registro técnico e histórico del proceso de unificación de ramas. No reemplaza la verificación funcional final ni implica por sí solo que el estado actual del proyecto coincida exactamente con cada conclusión acá escrita.
+
 > ⚠️ **PENDIENTE IMPORTANTE (directiva no-JS):** `app/templates/clinica/lista_medicos.html`
 > usa `onchange="this.form.submit()"` (JS de main, no pactado). Es la única violación
 > que queda de la directiva de no usar JavaScript. Decidido dejarlo así por ahora, pero
