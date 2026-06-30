@@ -8,6 +8,3 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("", include("app.urls", namespace="app")),
 ]
-
-handler404 = "app.views.handler404"
-handler500 = "app.views.handler500"

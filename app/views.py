@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import View
@@ -588,13 +588,3 @@ class CancelarTurnoView(LoginRequiredMixin, TemplateView):
         turno.cancelar()
         messages.success(request, "Turno cancelado.")
         return redirect("app:lista_turnos")
-
-
-def handler404(request, exception):
-    """Página de error 404 personalizada."""
-    return render(request, "404.html", status=404)
-
-
-def handler500(request):
-    """Página de error 500 personalizada."""
-    return render(request, "500.html", status=500)
