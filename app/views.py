@@ -188,7 +188,10 @@ class ListaPacientesView(PermissionRequiredMixin, ListView):
 
 
 class ListaAusenciasView(PermissionRequiredMixin, ListView):
-    """Lista todas las ausencias registradas."""
+    """Lista de ausencias.
+
+    El staff ve todas; un médico ve únicamente las suyas.
+    """
 
     model = Ausencia
     template_name = "clinica/lista_ausencias.html"
@@ -197,6 +200,15 @@ class ListaAusenciasView(PermissionRequiredMixin, ListView):
 
     def handle_no_permission(self):
         return redirect("app:home")
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.request.user.is_staff:
+            return qs
+        medico = Medico.objects.filter(usuario=self.request.user).first()
+        if medico is None:
+            return qs.none()
+        return qs.filter(medico=medico)
 
 
 class NuevaAusenciaView(PermissionRequiredMixin, CreateView):
@@ -211,18 +223,85 @@ class NuevaAusenciaView(PermissionRequiredMixin, CreateView):
     def handle_no_permission(self):
         return redirect("app:home")
 
+    def _medico_actual(self):
+        return Medico.objects.filter(usuario=self.request.user).first()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Para el médico, mostramos su nombre como dato de solo lectura
+        # (el selector editable es exclusivo del staff).
+        if not self.request.user.is_staff:
+            context["medico_actual"] = self._medico_actual()
+        return context
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # El médico no elige: la ausencia es siempre suya. Solo el staff puede
+        # registrar la de cualquier médico, así que para el médico ocultamos
+        # el selector.
+        if not self.request.user.is_staff:
+            form.fields.pop("medico", None)
+        return form
+
     def form_valid(self, form):
+        if self.request.user.is_staff:
+            medico = form.cleaned_data["medico"]
+        else:
+            medico = self._medico_actual()
+            if medico is None:
+                form.add_error(None, "Tu usuario no está vinculado a un médico.")
+                return self.form_invalid(form)
         ausencia, errors = Ausencia.new(
             motivo=form.cleaned_data["motivo"],
             fecha_inicio=form.cleaned_data["fecha_inicio"],
             fecha_fin=form.cleaned_data["fecha_fin"],
-            medico=form.cleaned_data["medico"],
+            medico=medico,
         )
         if errors:
             form.add_error(None, errors)
             return self.form_invalid(form)
         messages.success(self.request, "Ausencia registrada correctamente.")
         return redirect(self.success_url)
+
+
+class EliminarAusenciaView(PermissionRequiredMixin, TemplateView):
+    """Elimina una ausencia. GET confirma, POST elimina.
+
+    El médico solo puede eliminar sus propias ausencias; el staff, cualquiera.
+    """
+
+    template_name = "clinica/confirmar_eliminacion_ausencia.html"
+    permission_required = "app.delete_ausencia"
+
+    def handle_no_permission(self):
+        return redirect("app:home")
+
+    def _ausencia_si_permitido(self, request, pk):
+        ausencia = get_object_or_404(Ausencia, pk=pk)
+        if not (request.user.is_staff or ausencia.medico.usuario_id == request.user.id):
+            return None
+        return ausencia
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["ausencia"] = get_object_or_404(Ausencia, pk=self.kwargs["pk"])
+        return context
+
+    def get(self, request, *args, **kwargs):
+        ausencia = self._ausencia_si_permitido(request, kwargs["pk"])
+        if ausencia is None:
+            messages.error(request, "No podés eliminar esta ausencia.")
+            return redirect("app:lista_ausencias")
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        ausencia = self._ausencia_si_permitido(request, kwargs["pk"])
+        if ausencia is None:
+            messages.error(request, "No podés eliminar esta ausencia.")
+            return redirect("app:lista_ausencias")
+        ausencia.delete()
+        messages.success(request, "Ausencia eliminada correctamente.")
+        return redirect("app:lista_ausencias")
 
 
 class DetalleMedicoView(LoginRequiredMixin, DetailView):

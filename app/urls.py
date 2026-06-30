@@ -15,6 +15,7 @@ urlpatterns = [
     path("turnos/", views.ListaTurnosView.as_view(), name="lista_turnos"),
     path("ausencias/", views.ListaAusenciasView.as_view(), name="lista_ausencias"),
     path("ausencias/nueva/", views.NuevaAusenciaView.as_view(), name="nueva_ausencia"),
+    path("ausencias/<int:pk>/eliminar/", views.EliminarAusenciaView.as_view(), name="eliminar_ausencia"),
 
     # --- Flujo de pedir turno ---
     path(

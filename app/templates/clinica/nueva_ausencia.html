@@ -26,6 +26,14 @@
           {% endif %}
           <form method="post">
             {% csrf_token %}
+            {% if medico_actual %}
+              <div class="mb-3">
+                <label class="form-label">Médico</label>
+                <input type="text" class="form-control"
+                       value="Dr/a. {{ medico_actual.apellido }}, {{ medico_actual.nombre }}"
+                       readonly>
+              </div>
+            {% endif %}
             {{ form.as_p }}
             <div class="d-grid gap-2 mt-4">
               <button type="submit" class="btn btn-warning">Registrar Ausencia</button>

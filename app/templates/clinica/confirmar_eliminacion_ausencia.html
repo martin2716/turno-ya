@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar ausencia{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4>Eliminar ausencia</h4>
+                </div>
+                <div class="card-body">
+                    <p>¿Seguro que querés eliminar esta ausencia?</p>
+
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item">
+                            <strong>Médico:</strong> Dr/a. {{ ausencia.medico.apellido }}, {{ ausencia.medico.nombre }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Motivo:</strong> {{ ausencia.motivo }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Desde:</strong> {{ ausencia.fecha_inicio }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Hasta:</strong> {{ ausencia.fecha_fin }}
+                        </li>
+                    </ul>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'app:lista_ausencias' %}" class="btn btn-secondary">
+                                Volver
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                Sí, eliminar ausencia
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
