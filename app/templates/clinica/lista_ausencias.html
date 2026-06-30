@@ -16,6 +16,7 @@
         <th>Motivo</th>
         <th>Desde</th>
         <th>Hasta</th>
+        <th class="text-end">Acciones</th>
       </tr>
     </thead>
     <tbody>
@@ -25,10 +26,15 @@
         <td>{{ ausencia.motivo }}</td>
         <td>{{ ausencia.fecha_inicio }}</td>
         <td>{{ ausencia.fecha_fin }}</td>
+        <td class="text-end">
+          {% if user.is_staff or ausencia.medico.usuario_id == user.id %}
+            <a href="{% url 'app:eliminar_ausencia' ausencia.pk %}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+          {% endif %}
+        </td>
       </tr>
       {% empty %}
       <tr>
-        <td colspan="4" class="text-center text-muted">No hay ausencias registradas.</td>
+        <td colspan="5" class="text-center text-muted">No hay ausencias registradas.</td>
       </tr>
       {% endfor %}
     </tbody>
