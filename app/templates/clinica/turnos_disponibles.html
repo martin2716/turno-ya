@@ -1,50 +1,75 @@
 {% extends 'base.html' %}
 
-{% block title %}Turnos Disponibles{% endblock %}
+{% block title %}Turnos — Dr/a. {{ medico.apellido }}, {{ medico.nombre }}{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h2 class="mb-4">Turnos Disponibles</h2>
-            <p class="text-muted">
-                Médico: <strong>Dr/a. {{ medico.apellido }}, {{ medico.nombre }}</strong>
-            </p>
-            <p class="text-muted">
-                Fecha: <strong>{{ fecha|date:"d/m/Y" }}</strong>
-            </p>
-        </div>
+  <div class="row mb-3">
+    <div class="col-12">
+      <h2 class="mb-1">Turnos disponibles</h2>
+      <p class="text-muted">Dr/a. <strong>{{ medico.apellido }}, {{ medico.nombre }}</strong> — {{ medico.especialidad }}</p>
     </div>
+  </div>
 
-    {% if turnos %}
-        <div class="row">
-            {% for turno_data in turnos %}
-                <div class="col-md-3 col-sm-6 mb-3">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">{{ turno_data.hora }}</h5>
-                            <p class="card-text text-muted small">Disponible</p>
-                            <a href="{% url 'app:confirmar_turno' medico.id fecha_str turno_data.hora %}"
-                               class="btn btn-success btn-sm">
-                                Seleccionar
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+  {% if modo == "calendario" %}
+
+  <p class="text-muted mb-3">Seleccioná un día disponible para ver los horarios.</p>
+
+  <div class="row g-2">
+    {% for dia in dias %}
+    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+      {% if dia.disponible %}
+        <a href="?fecha={{ dia.fecha_str }}"
+           class="btn btn-success w-100 py-3 d-flex flex-column align-items-center text-decoration-none">
+          <span class="fw-bold">{{ dia.nombre_dia }}</span>
+          <small>{{ dia.cantidad }} turno{{ dia.cantidad|pluralize }}</small>
+        </a>
+      {% else %}
+        <div class="btn btn-outline-secondary w-100 py-3 d-flex flex-column align-items-center disabled opacity-50"
+             style="cursor: not-allowed;">
+          <span class="fw-bold">{{ dia.nombre_dia }}</span>
+          <small>Sin turnos</small>
         </div>
-    {% else %}
-        <div class="alert alert-warning">
-            No hay turnos disponibles para este médico en esta fecha.
+      {% endif %}
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <div class="alert alert-warning">No hay turnos disponibles en los próximos 15 días.</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% elif modo == "horarios" %}
+
+  <p class="text-muted mb-3">Fecha: <strong>{{ fecha|date:"l d/m/Y" }}</strong></p>
+
+  {% if turnos %}
+  <div class="row g-3">
+    {% for turno_data in turnos %}
+    <div class="col-6 col-md-3 col-lg-2">
+      <div class="card h-100 shadow-sm text-center">
+        <div class="card-body d-flex flex-column justify-content-center py-3">
+          <h5 class="card-title mb-2">{{ turno_data.hora }}</h5>
+          <a href="{% url 'app:confirmar_turno' medico.id fecha_str turno_data.hora %}"
+             class="btn btn-success btn-sm">Seleccionar</a>
         </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="alert alert-warning">
+    No hay horarios disponibles para este día. <a href="{% url 'app:turnos_disponibles' medico.id %}">Ver otros días</a>
+  </div>
+  {% endif %}
+
+  {% endif %}
+
+  <div class="mt-4">
+    {% if modo == "horarios" %}
+    <a href="{% url 'app:turnos_disponibles' medico.id %}" class="btn btn-outline-secondary me-2">Volver al calendario</a>
     {% endif %}
-
-    <div class="row mt-3">
-        <div class="col-12">
-            <a href="{% url 'app:medicos_disponibles' medico.especialidad.id %}" class="btn btn-secondary">
-                Volver a médicos
-            </a>
-        </div>
-    </div>
+    <a href="{% url 'app:medicos_disponibles' medico.especialidad.id %}" class="btn btn-secondary">Volver a médicos</a>
+  </div>
 </div>
 {% endblock %}

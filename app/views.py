@@ -40,9 +40,17 @@ def _slots_de_franja(fecha, hora_inicio, hora_fin, paso_min=PASO_TURNO_MIN):
 def slots_libres_de_medico(medico, fecha):
     """Devuelve los datetime libres de un médico en una fecha dada.
 
-    Lee las franjas horarias del médico para el día de la semana de `fecha`
+    Lee las franjas horarias del médico para el día de la semana de `fecha`,
+    descarta si el médico tiene una ausencia que cubra esa fecha
     y resta los turnos ya ocupados (pendientes o confirmados).
     """
+    # Si el médico tiene ausencia ese día, no hay slots disponibles
+    if medico.ausencias.filter(
+        fecha_inicio__lte=fecha,
+        fecha_fin__gte=fecha,
+    ).exists():
+        return []
+
     posibles = []
     for franja in medico.franjas.filter(dia_semana=fecha.weekday()):
         posibles.extend(_slots_de_franja(fecha, franja.hora_inicio, franja.hora_fin))
@@ -419,30 +427,86 @@ class MedicosDisponiblesView(PerfilPacienteRequiredMixin, ListView):
         return context
 
 
+DIAS_CALENDARIO = 15
+
+NOMBRES_DIAS_ES = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
+NOMBRES_MESES_ES = [
+    "",
+    "Ene",
+    "Feb",
+    "Mar",
+    "Abr",
+    "May",
+    "Jun",
+    "Jul",
+    "Ago",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dic",
+]
+
+
 class TurnosDisponiblesView(PerfilPacienteRequiredMixin, TemplateView):
-    """Paso 3: horarios libres de un médico en una fecha."""
+    """Paso 3: calendario de 15 días o lista de horarios según si hay fecha seleccionada.
+
+    Sin fecha en GET: muestra el calendario con los días que tienen turnos libres.
+    Con fecha en GET: muestra los horarios disponibles de ese día, filtrando pasados.
+    """
 
     template_name = "clinica/turnos_disponibles.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         medico = get_object_or_404(Medico, id=self.kwargs.get("medico_id"))
+        hoy = timezone.localdate()
+        ahora = timezone.now()
 
         fecha_str = self.request.GET.get("fecha")
-        fecha = timezone.localdate()
+        fecha_elegida = None
+
         if fecha_str:
             try:
-                fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+                parsed = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+                if hoy <= parsed <= hoy + timedelta(days=DIAS_CALENDARIO):
+                    fecha_elegida = parsed
             except ValueError:
                 pass
 
-        slots = slots_libres_de_medico(medico, fecha)
         context["medico"] = medico
-        context["fecha"] = fecha
-        context["fecha_str"] = fecha.strftime("%Y-%m-%d")
-        context["turnos"] = [
-            {"hora": s.strftime("%H:%M"), "datetime": s} for s in slots
-        ]
+
+        if fecha_elegida:
+            # Mostrar horarios del día elegido, filtrando slots pasados
+            slots = slots_libres_de_medico(medico, fecha_elegida)
+            slots_futuros = [s for s in slots if s > ahora]
+            context["modo"] = "horarios"
+            context["fecha"] = fecha_elegida
+            context["fecha_str"] = fecha_elegida.strftime("%Y-%m-%d")
+            context["turnos"] = [
+                {"hora": s.strftime("%H:%M"), "datetime": s} for s in slots_futuros
+            ]
+        else:
+            # Mostrar calendario: calcular cuáles días tienen turnos disponibles
+            dias = []
+            for i in range(DIAS_CALENDARIO + 1):
+                dia = hoy + timedelta(days=i)
+                slots = slots_libres_de_medico(medico, dia)
+                # Para hoy, solo slots futuros
+                if dia == hoy:
+                    slots = [s for s in slots if s > ahora]
+                dias.append(
+                    {
+                        "fecha": dia,
+                        "fecha_str": dia.strftime("%Y-%m-%d"),
+                        "nombre_dia": f"{NOMBRES_DIAS_ES[dia.weekday()]} {dia.day:02d}/{dia.month:02d}",
+                        "disponible": len(slots) > 0,
+                        "cantidad": len(slots),
+                    }
+                )
+            context["modo"] = "calendario"
+            context["dias"] = dias
+            context["hoy"] = hoy
+
         return context
 
 
