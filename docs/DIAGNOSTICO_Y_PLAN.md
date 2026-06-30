@@ -223,7 +223,7 @@ capacidades de `usabilidad.md` **todavía sin implementar**:
 Leyenda de dificultad: 🟢 trivial (URL / ajuste chico) · 🟡 medio (1 vista CBV +
 template siguiendo patrones existentes) · 🔴 difícil (modelo nuevo / rediseño / lógica).
 
-### 8.1 Criterios de aceptación obligatorios — TODOS cumplidos
+### 8.1 Criterios de aceptación obligatorios — base ampliamente cubierta
 - ✅ Modelos con `validate/new/update` · ✅ Migraciones funcionales · ✅ Solo CBV ·
   ✅ Login/logout/registro · ✅ Permisos por tipo de usuario · ✅ Navbar dinámica ·
   ✅ Admin personalizado (list_display/filter) · ✅ ≥2 forms con validación propia ·
@@ -235,15 +235,16 @@ template siguiendo patrones existentes) · 🔴 difícil (modelo nuevo / redise�
   más estricta de "cero JS" es del grupo, no de la consigna; ver aviso al inicio.)
 - ⚙️ **Mínimo 10 commits por integrante:** proceso/Git, no código. Verificar en GitHub.
 
-### 8.2 Las 13 características obligatorias del TP — TODAS implementadas ✅
+### 8.2 Las 13 características obligatorias del TP — implementadas en gran medida
 1. Login/logout/registro/permisos · 2. Navbar dinámica · 3. Admin · 4. Home con
 estadísticas · 5. Tabla de médicos con filtro por especialidad · 6. Detalle de médico
 (info + obras sociales + ausencias) · 7. Formulario de creación de turno · 8. Listado de
 turnos del médico · 9. Perfil de usuario · 10. Formulario de ausencias · 11. Listado de
 pacientes · 12. Cancelación de turnos · 13. Aceptación de turnos por el médico.
 
-> **Conclusión:** para la lista obligatoria del TP, **no falta nada**. Lo que sigue son
-> opcionales y refinamientos.
+> **Conclusión:** para la lista obligatoria del TP, la base del proyecto quedó
+> mayormente cubierta. Lo que sigue son opcionales, refinamientos y verificaciones
+> funcionales finales.
 
 ### 8.3 Tareas opcionales del TP
 - **Opcional 1 — Recordatorios** (modelo + manejo + visualización): ❌ no hecho → 🔴.
