@@ -24,11 +24,11 @@ Sirve como referencia para implementar vistas, permisos y restricciones.
 > El perfil de médico siempre es creado por un administrador. No existe registro propio desde la interfaz de usuario.
 
 - Puede ver sus propios datos (nombre, matrícula, especialidad, obras sociales).
-- Puede modificar sus propios datos.
+- Puede operar dentro del sistema con su usuario asociado cuando el perfil médico fue vinculado correctamente por un administrador.
 - Puede ver sus turnos futuros.
 - Puede ver sus turnos pasados.
-- Puede ver el listado de pacientes ya atendidos.
-- Puede filtrar y ver el historial de un paciente específico (reconstruido a partir de los turnos).
+- Puede ver pacientes vinculados a sus turnos según el alcance implementado del proyecto.
+- El historial detallado de pacientes se considera una mejora o refinamiento adicional, no un supuesto garantizado para cualquier estado intermedio del proyecto.
 - Puede aceptar o rechazar turnos (solo futuros).
 - *(Opcional)* Puede ver su franja horaria disponible.
 - *(Opcional)* Puede definir su franja horaria disponible.
@@ -37,7 +37,7 @@ Sirve como referencia para implementar vistas, permisos y restricciones.
 
 ## Administrador
 
-> Todos los usuarios ingresan por la misma vista de login. El administrador, al autenticarse, es redirigido automáticamente al panel de Django (`/admin`). Puede navegar libremente entre el panel de admin y las vistas de la aplicación sin necesidad de volver a loguearse.
+> Todos los usuarios comparten el mismo modelo de autenticación. El administrador puede acceder al panel de Django desde `/admin` y navegar entre el panel y las vistas del sitio sin necesidad de volver a autenticarse.
 
 > Nadie puede acceder a `/admin` sin estar previamente autenticado.
 

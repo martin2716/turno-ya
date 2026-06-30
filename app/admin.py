@@ -11,6 +11,10 @@ from .models import (
     Ausencia,
 )
 
+admin.site.site_header = "TurnoYa Administración"
+admin.site.site_title = "TurnoYa Admin"
+admin.site.index_title = "Gestión interna del sistema"
+
 
 @admin.register(Especialidad)
 class EspecialidadAdmin(admin.ModelAdmin):

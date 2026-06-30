@@ -23,7 +23,7 @@ Cada capa es independiente. Que existan las tres no es redundancia, es defensa e
 
 ---
 
-## Estado general del proyecto (relevado 2026-06-23)
+## Estado general del proyecto (relevado 2026-06-30)
 
 ### ✅ COMPLETADO
 
@@ -31,33 +31,32 @@ Cada capa es independiente. Que existan las tres no es redundancia, es defensa e
   - Todos en app/models/ como carpeta con __init__.py
 - **Paciente**: CheckConstraints agregados para todos los campos obligatorios. Validaciones de formato (solo letras en nombre/apellido, solo numeros en DNI/telefono) en validate() y en el form.
 - **Ausencia**: modelo completo con CheckConstraint y los 3 metodos requeridos
-- **Admin**: modelos registrados con list_display, search_fields y list_filter
+- **Admin**: modelos registrados con list_display, search_fields, list_filter y date_hierarchy donde corresponde
 - **Autenticacion**: login, logout y registro funcionando con CBV
 - **Navbar dinamica**: cambia segun autenticacion, rol y permisos
-- **Permisos**: LoginRequiredMixin y PermissionRequiredMixin aplicados en vistas
+- **Permisos**: LoginRequiredMixin y PermissionRequiredMixin aplicados en vistas según el flujo actual
 - **Forms**: reorganizados en carpeta app/forms/ con __init__.py que exporta todo
   - AusenciaForm, RegistroPacienteForm, PerfilUsuarioForm en sus archivos correspondientes
   - Triple validacion aplicada: form + validate() + CheckConstraint
-- **Vistas CBV implementadas**: HomeView, ListaMedicosView, ListaTurnosView, RegistroUsuarioView, ListaPacientesView, PerfilUsuarioView, ListaAusenciasView, NuevaAusenciaView, DetalleMedicoView
+- **Vistas CBV implementadas**: HomeView, ListaMedicosView, ListaTurnosView, RegistroUsuarioView, ListaPacientesView, PerfilUsuarioView, ListaAusenciasView, NuevaAusenciaView, DetalleMedicoView, SeleccionarEspecialidadView, MedicosDisponiblesView, TurnosDisponiblesView, ConfirmarTurnoView, CancelarTurnoView
 - **Registro de paciente**: crea User y Paciente en un unico paso (RegistroPacienteForm)
 - **Perfil de paciente**: vista unificada PerfilUsuarioView que edita User y Paciente juntos
 - **DetalleMedicoView**: muestra info, obras sociales y ausencias del medico
-- **Templates**: login.html, signup.html, perfil_usuario.html, nueva_ausencia.html, detalle_medico.html con Bootstrap aplicado correctamente (form-control, form-select, is-invalid, bloques de error)
-- **Filtro reactivo** por especialidad en lista de medicos (submit automatico al cambiar el select)
+- **Templates**: login.html, signup.html, perfil_usuario.html, nueva_ausencia.html, detalle_medico.html y templates del flujo de turnos con Bootstrap aplicado correctamente
+- **Filtro** por especialidad en lista de medicos
 - **Home y lista de medicos**: accesibles sin login (acuerdo con el profesor)
 - **Migraciones**: commiteadas y funcionales
+- **Flujo de pedir turno**: implementado con selección de especialidad, médico, horario y confirmación
+- **Turnos**: aceptación, rechazo y cancelación implementados según el flujo actual
+- **Rol médico**: el modelo `Medico` ya cuenta con usuario asociado
 
 ### ⏳ PENDIENTE (mis tareas)
 
-1. Registrar Ausencia en admin.py
-2. Agregar tests de formularios y vistas (ausencia, paciente y registro)
-3. Definir rol Medico con usuario asociado (pendiente decision del grupo)
-4. Actualizar PerfilPacienteRequiredMixin cuando se defina el rol Medico
+1. Agregar tests de formularios y vistas críticas (ausencia, paciente, registro y flujo de turnos)
+2. Revisar documentación interna y dejar solo lo que convenga mantener en el repo final
+3. Validar accesos y visibilidad por rol antes del cierre final
 
 ### ⚠️ PENDIENTE (vistas que faltan del proyecto general, coordinar con el grupo)
 
-- NuevoTurnoView (URL comentada en urls.py)
-- CancelarTurnoView (URL comentada en urls.py)
-- AceptarTurnoView (no existe ni la URL)
-- Templates de turno relacionados con las vistas anteriores
-- Modelo de Medico con usuario asociado (OneToOneField a User)
+- Revisar qué capacidades del rol médico siguen pendientes respecto de `usabilidad.md`
+- Evaluar si corresponde completar extras o dejar explícito que quedan fuera del alcance de esta entrega

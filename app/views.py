@@ -69,13 +69,12 @@ class PerfilPacienteRequiredMixin(LoginRequiredMixin):
         if request.user.is_staff:
             return super().dispatch(request, *args, **kwargs)
         if not Paciente.objects.filter(usuario=request.user).exists():
-            # revisar ESTTOOOO
             return redirect("app:home")
         return super().dispatch(request, *args, **kwargs)
 
 
 class HomeView(TemplateView):
-    """Vista de inicio con estadísticas generales."""
+    """Vista de inicio con estadísticas y acceso contextual según el usuario."""
 
     template_name = "clinica/home.html"
 
@@ -85,6 +84,14 @@ class HomeView(TemplateView):
         context["total_medicos"] = Medico.objects.count()
         context["total_especialidades"] = Especialidad.objects.count()
         context["total_usuarios"] = user_model.objects.count()
+        context["medicos_inicio"] = Medico.objects.select_related("especialidad").all()
+
+        if self.request.user.is_authenticated and not self.request.user.is_staff:
+            paciente = Paciente.objects.filter(usuario=self.request.user).first()
+            context["paciente_inicio"] = paciente
+            context["mis_turnos_count"] = (
+                Turno.objects.filter(paciente=paciente).count() if paciente else 0
+            )
         return context
 
 
@@ -142,9 +149,7 @@ class ListaTurnosView(LoginRequiredMixin, ListView):
         user = self.request.user
         context["es_medico"] = Medico.objects.filter(usuario=user).exists()
         context["mi_paciente_id"] = (
-            Paciente.objects.filter(usuario=user)
-            .values_list("id", flat=True)
-            .first()
+            Paciente.objects.filter(usuario=user).values_list("id", flat=True).first()
         )
         return context
 
@@ -180,7 +185,6 @@ class ListaPacientesView(PermissionRequiredMixin, ListView):
 
     def handle_no_permission(self):
         return redirect("app:home")
-
 
 
 class ListaAusenciasView(PermissionRequiredMixin, ListView):
@@ -316,6 +320,7 @@ class DetalleMedicoView(LoginRequiredMixin, DetailView):
         context["ausencias"] = self.object.ausencias.order_by("fecha_inicio")
         context["obras_sociales"] = self.object.obras_sociales.all()
         return context
+
 
 class PerfilUsuarioView(LoginRequiredMixin, FormView):
     """Alta y edición resumida del perfil de paciente."""
@@ -531,7 +536,9 @@ class RechazarTurnoView(LoginRequiredMixin, View):
     def post(self, request, pk):
         turno = get_object_or_404(Turno, pk=pk)
         if not (request.user.is_staff or turno.medico.usuario_id == request.user.id):
-            messages.error(request, "Solo el médico asignado puede rechazar este turno.")
+            messages.error(
+                request, "Solo el médico asignado puede rechazar este turno."
+            )
             return redirect("app:lista_turnos")
         if turno.estado != Turno.PENDIENTE:
             messages.error(request, "Solo se pueden rechazar turnos pendientes.")

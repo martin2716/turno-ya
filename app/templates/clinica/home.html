@@ -37,14 +37,132 @@
       </div>
     </div>
   </div>
+{% elif user.is_authenticated %}
+  <div class="row g-4">
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <p class="text-muted mb-2">Mi perfil</p>
+          <h3 class="h5">{{ paciente_inicio.nombre|default:user.first_name }} {{ paciente_inicio.apellido|default:user.last_name }}</h3>
+          <p class="mb-4 text-muted">Mantené tus datos actualizados y revisá tus turnos desde el sistema.</p>
+          <div class="d-grid gap-2 d-sm-flex">
+            <a href="{% url 'app:editar_perfil' %}" class="btn btn-success">Mi perfil</a>
+            <a href="{% url 'app:lista_turnos' %}" class="btn btn-outline-success">Mis turnos</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <p class="text-muted mb-2">Médicos disponibles</p>
+              <h2 class="display-6 mb-0">{{ total_medicos }}</h2>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <p class="text-muted mb-2">Especialidades</p>
+              <h2 class="display-6 mb-0">{{ total_especialidades }}</h2>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <p class="text-muted mb-2">Mis turnos</p>
+              <h2 class="display-6 mb-0">{{ mis_turnos_count }}</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm border-0 mt-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="h5 mb-0">Nuestros médicos</h3>
+            <a href="{% url 'app:lista_medicos' %}" class="btn btn-sm btn-outline-secondary">Ver listado completo</a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Apellido y nombre</th>
+                  <th>Matrícula</th>
+                  <th>Especialidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for medico in medicos_inicio %}
+                <tr>
+                  <td>{{ medico }}</td>
+                  <td><code>{{ medico.matricula }}</code></td>
+                  <td>{{ medico.especialidad }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="3" class="text-center text-muted">No hay médicos cargados.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 {% else %}
-  <div class="row">
-    <div class="col-md-8">
-      <div class="card shadow-sm border-0">
+  <div class="row g-4">
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm border-0 h-100">
         <div class="card-body">
           <h3>¿Necesitás un turno?</h3>
-          <p>Podés ver la lista de nuestros médicos disponibles y reservar tu atención cuando quieras.</p>
-          <a href="{% url 'app:lista_medicos' %}" class="btn btn-success">Ver Médicos</a>
+          <p>Ingresá o registrate para gestionar tus datos y pedir un turno con nuestros profesionales.</p>
+          <div class="d-grid gap-2 d-sm-flex">
+            <a href="{% url 'login' %}" class="btn btn-success">Ingresar</a>
+            <a href="{% url 'app:registro' %}" class="btn btn-outline-success">Registrarse</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="h5 mb-0">Médicos disponibles</h3>
+            <a href="{% url 'app:lista_medicos' %}" class="btn btn-sm btn-outline-secondary">Ver listado completo</a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Apellido y nombre</th>
+                  <th>Matrícula</th>
+                  <th>Especialidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for medico in medicos_inicio %}
+                <tr>
+                  <td>{{ medico }}</td>
+                  <td><code>{{ medico.matricula }}</code></td>
+                  <td>{{ medico.especialidad }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="3" class="text-center text-muted">No hay médicos cargados.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
